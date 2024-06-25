@@ -40,6 +40,14 @@ if(BUILD_EXAMPLE)
     target_link_libraries(CDTDemo PRIVATE CDT sfml-graphics sfml-window sfml-system ImGui-SFML::ImGui-SFML)
 endif()
 
+if(BUILD_TESTS)
+    enable_testing()
+    include(GoogleTest)
 
+    add_executable(test_all src/Tests/main.cpp)
+    target_link_libraries(test_all PRIVATE gtest CDT)
+
+    gtest_discover_tests(test_all)
+endif()
 
 
