@@ -7,53 +7,6 @@
 #include <string>
 #include <stack>
 
-#include <SFML/Graphics.hpp>
-
-void inline drawLine(sf::RenderWindow &window, sf::Vector2f p1, sf::Vector2f p2, sf::Color color = sf::Color::Green)
-{
-    sf::RectangleShape line;
-    line.setFillColor(color);
-    line.setOrigin({0, 0.1});
-    line.setPosition(p1);
-    sf::Vector2f dr = p2 - p1;
-    line.setSize({cdt::norm(dr), 0.2});
-    line.setRotation(std::atan2(dr.y, dr.x) * 180.f / M_PI);
-
-    window.draw(line);
-}
-
-sf::Font m_font;
-
-void inline drawTriInds(cdt::Triangulation<cdt::Vector2i> &cdt, sf::RenderWindow &window)
-{
-    sf::Text num;
-    num.setFont(m_font);
-    num.setFillColor(sf::Color::Blue);
-    for (int ind = 0; ind < cdt.m_triangles.size(); ++ind)
-    {
-        auto &tri = cdt.m_triangles.at(ind);
-        num.setString(std::to_string(ind));
-        auto center = asFloat(tri.verts[0] + tri.verts[1] + tri.verts[2]) / 3.f;
-        num.setPosition(center.x, center.y); // - sf::Vector2f(num.getGlobalBounds().width, num.getLocalBounds().height)
-        num.setScale(0.03f, 0.03f);
-        window.draw(num);
-    }
-}
-
-void inline drawTriangulation(cdt::Triangulation<cdt::Vector2i> &cdt, sf::RenderWindow &window)
-{
-    window.clear(sf::Color::White);
-    int tri_ind = 0;
-    for (auto &tri : cdt.m_triangles)
-    {
-        sf::Vector2f v1(tri.verts[0].x, tri.verts[0].y);
-        sf::Vector2f v2(tri.verts[1].x, tri.verts[1].y);
-        sf::Vector2f v3(tri.verts[2].x, tri.verts[2].y);
-        tri.is_constrained[0] ? drawLine(window, v1, v2, sf::Color::Red) : drawLine(window, v1, v2);
-        tri.is_constrained[1] ? drawLine(window, v2, v3, sf::Color::Red) : drawLine(window, v2, v3);
-        tri.is_constrained[2] ? drawLine(window, v3, v1, sf::Color::Red) : drawLine(window, v3, v1);
-    }
-}
 
 namespace cdt
 {
@@ -294,9 +247,9 @@ namespace cdt
         Vertex super_tri1 = {3 * m_boundary.x, -m_boundary.y / 2};
         Vertex super_tri2 = {-3 * m_boundary.x, -m_boundary.y / 2};
 
-        // super_triangle.verts[0] = super_tri0;
-        // super_triangle.verts[1] = super_tri1;
-        // super_triangle.verts[2] = super_tri2;
+        super_triangle.verts[0] = super_tri0;
+        super_triangle.verts[1] = super_tri1;
+        super_triangle.verts[2] = super_tri2;
         m_triangles.push_back(super_triangle);
 
         m_vertices.push_back(super_tri0);
@@ -735,7 +688,7 @@ namespace cdt
         {
             return {vert_inds[1], vert_inds[2]};
         }
-        else if (old_triangle.is_constrained[2] && liesBetween(new_vertex, v2, v1))
+        else if (old_triangle.is_constrained[2] && liesBetween(new_vertex, v2, v0))
         {
             return {vert_inds[2], vert_inds[0]};
         }
@@ -817,6 +770,7 @@ namespace cdt
         data.overlapping_vertex = findOverlappingVertex(new_vertex, tri_ind);
         if (data.overlapping_vertex != -1)
         {
+            //! we inserted on an existing vertex
             return data;
         }
 
@@ -826,6 +780,7 @@ namespace cdt
         const auto overlapping_edge = findOverlappingEdge(new_vertex, tri_ind);
         if (overlapping_edge.from != -1)
         {
+            //! we inserted on an existing constrained edge
             const EdgeI edge_i = {m_vertices[overlapping_edge.from], m_vertices[overlapping_edge.to]};
             insertVertexOnEdge(new_vertex, tri_ind, triangleOppositeOfEdge(old_triangle, edge_i), edge_i);
             data.overlapping_edge = overlapping_edge;
