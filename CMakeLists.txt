@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 project(CDT)
 
+### Options
+option(BUILD_EXAMPLE "Example" OFF)
+option(BUILD_TESTS "Tests" OFF)
 
 ### CMake config ###
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON) 
@@ -32,8 +35,10 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-add_executable(CDTDemo src/CDTDemo/main.cpp)
-target_link_libraries(CDTDemo PRIVATE CDT sfml-graphics sfml-window sfml-system ImGui-SFML::ImGui-SFML)
+if(BUILD_EXAMPLE)
+    add_executable(CDTDemo src/CDTDemo/main.cpp)
+    target_link_libraries(CDTDemo PRIVATE CDT sfml-graphics sfml-window sfml-system ImGui-SFML::ImGui-SFML)
+endif()
 
 
 
