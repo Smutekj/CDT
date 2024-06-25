@@ -103,10 +103,8 @@ namespace cdt
         VertexInsertionData insertVertexAndGetData(const Vertex &v, bool = false);
         VertexInsertionData insertVertexAndGetData(int vx, int vy, bool = false);
 
-        void insertVertices(const std::vector<Vertex> &verts);
-
         void insertConstraint(const EdgeVInd edge);
-        void insertConstraint(const EdgeVInd edge, sf::RenderWindow &window);
+        void insertVertices(const std::vector<Vertex> &verts);
 
         int indexOf(const Vertex &v, const Triangle<Vertex> &tri) const;
         int oppositeIndex(const TriInd np, const Triangle<Vertex> &tri);
@@ -118,7 +116,6 @@ namespace cdt
         bool allAreDelaunay() const;
         std::vector<EdgeI<Vertex>> findOverlappingConstraints(const Vertex &vi, const Vertex &vj);
 
-        std::vector<EdgeVInd> findOverlappingConstraints2(const Vertex &vi, const Vertex &vj);
 
     private:
         bool areCollinear(const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
@@ -126,6 +123,8 @@ namespace cdt
 
         VertInd findOverlappingVertex(const Vertex &new_vertex, const TriInd tri_ind) const;
         EdgeVInd findOverlappingEdge(const Vertex &new_vertex, const TriInd tri_ind) const;
+        
+        std::vector<EdgeVInd> findOverlappingEdges(const Vertex &vi, const Vertex &vj);
 
         TriInd findTriangleFromVertex(Vertex query_point, bool start_from_last_found = false);
 

@@ -393,7 +393,7 @@ namespace cdt
         tri_down.verts[2] = v2;
         tri_down.neighbours[0] = -1u;
         tri_down.neighbours[1] = -1u;
-        tri_down.neighbours[2] =   0;
+        tri_down.neighbours[2] = 0;
         tri_down.is_constrained[0] = true;
         tri_down.is_constrained[1] = true;
         tri_down.is_constrained[2] = false;
@@ -1018,8 +1018,8 @@ namespace cdt
                     const auto &neighbour_tri = m_triangles[neighbour_tri_ind];
                     const auto ind_in_neirhbour_tri = 0;
                     const auto found_at = indInTriOf(neighbour_tri, tri_ind);
-                        // std::find(neighbour_tri.neighbours.begin(), neighbour_tri.neighbours.end(), tri_ind) -
-                        // neighbour_tri.neighbours.begin();
+                    // std::find(neighbour_tri.neighbours.begin(), neighbour_tri.neighbours.end(), tri_ind) -
+                    // neighbour_tri.neighbours.begin();
                     if (found_at < 0 or found_at > 2)
                     {
                         return false;
@@ -1059,8 +1059,7 @@ namespace cdt
         std::deque<TriInd> intersected_tri_inds;
         findIntersectingEdges(e, intersected_edges, intersected_tri_inds);
 
-        auto overlapsx = findOverlappingConstraints(vi, vj);
-        auto overlaps = findOverlappingConstraints2(vi, vj);
+        auto overlaps = findOverlappingEdges(vi, vj);
         if (!overlaps.empty())
         {
             for (const auto &overlap : overlaps)
@@ -1133,172 +1132,6 @@ namespace cdt
                 intersected_tri_inds.push_back(tri_ind);
             }
         }
-
-        //! Fix Delaunay triangulation (Steps 4.1 - 4.3)
-        bool some_swap_happened = true;
-        while (some_swap_happened)
-        {
-            some_swap_happened = false;
-
-            for (int i = 0; i < newly_created_edges.size(); ++i)
-            {
-                const auto &e_new = newly_created_edges[i];
-                const auto tri_ind_a = newly_created_edge_tris[i].first;
-                auto &tri_a = m_triangles[tri_ind_a];
-                auto tri_ind_b = triangleOppositeOfEdge(tri_a, e_new);
-                if (tri_ind_b == -1)
-                {
-                    tri_ind_b = newly_created_edge_tris[i].second;
-                }
-                auto &tri_b = m_triangles[tri_ind_b];
-
-                const auto opposite_ind_in_tri_a = oppositeOfEdge(tri_a, e_new);
-                const auto opposite_ind_in_tri_b = oppositeOfEdge(tri_b, e_new);
-
-                vi = tri_a.verts[opposite_ind_in_tri_a];
-                vj = tri_b.verts[opposite_ind_in_tri_b];
-                vi_ind = m_tri_ind2vert_inds[tri_ind_a][opposite_ind_in_tri_a];
-                auto vi_ind_next = m_tri_ind2vert_inds[tri_ind_a][next(opposite_ind_in_tri_a)];
-                auto vi_ind_prev = m_tri_ind2vert_inds[tri_ind_a][prev(opposite_ind_in_tri_a)];
-
-                if (e_new == e_inserted)
-                {
-                    tri_a.is_constrained[next(opposite_ind_in_tri_a)] = true;
-                    tri_b.is_constrained[next(opposite_ind_in_tri_b)] = true;
-                    continue;
-                }
-
-                const auto v1 = m_vertices.at(vi_ind_next);
-                const auto v2 = m_vertices.at(vi_ind_prev);
-
-                bool edge_needs_swap = needSwap(vi, v1, v2, vj);
-                bool is_convex = true; //! Convexity check should be automatically taken care of by needSwap but it doesn't
-                                       //! and I don't know why yet :(
-                if (!isConvex(m_vertices[vi_ind], v1, v2, m_vertices[vj_ind]))
-                {
-                    is_convex = false;
-                }
-                if (edge_needs_swap && is_convex)
-                {
-
-                    swapConnectingEdgeClockwise(tri_ind_a, tri_ind_b);
-                    assert(allTrianglesValid());
-
-                    some_swap_happened = true;
-                    newly_created_edges[i] = {vi, vj};
-                }
-            }
-        }
-    }
-
-    //! \brief forces triangulation to have a constrained edge connecting \p e.from and \p e.to
-    //! \param e edge representing the constraint
-    template <class Vertex>
-    void Triangulation<Vertex>::insertConstraint(const EdgeVInd e, sf::RenderWindow &window)
-    {
-
-        auto vi_ind = e.from;
-        auto vj_ind = e.to;
-        auto vi = m_vertices[vi_ind];
-        auto vj = m_vertices[vj_ind];
-        if (m_fixed_edges.count({vi, vj}) > 0 || e.from == e.to) //! constrained edge alread exists
-        {
-            return;
-        }
-        m_fixed_edges.insert({vi, vj});
-
-        auto overlapsx = findOverlappingConstraints(vi, vj);
-        auto overlaps = findOverlappingConstraints2(vi, vj);
-        if (!overlaps.empty())
-        {
-            for (auto overlap : overlaps)
-            {
-                if (overlap != e)
-                {
-                    insertConstraint(overlap);
-                }
-            }
-            //! inserts constraints between overlapping edges to fill the empty space
-            insertConstraint({e.from, overlaps[0].from});
-            for (int i = 1; i < overlaps.size(); ++i)
-            {
-                insertConstraint({overlaps.at(i - 1).to, overlaps.at(i).from});
-            }
-            insertConstraint({e.to, overlaps.back().to});
-            return;
-        }
-
-        std::deque<EdgeI<Vertex>> intersected_edges;
-        std::deque<TriInd> intersected_tri_inds;
-        findIntersectingEdges(e, intersected_edges, intersected_tri_inds);
-
-        std::vector<EdgeI<Vertex>> newly_created_edges;
-        std::vector<std::pair<TriInd, TriInd>> newly_created_edge_tris;
-
-        EdgeI e_inserted = {vi, vj};
-
-        m_font.loadFromFile("../Resources/arial.ttf");
-
-        //! remove intersecting edges (steps 3.1 3.2)
-        while (!intersected_edges.empty())
-        {
-
-            auto tri_ind = intersected_tri_inds.front();
-            auto &tri = m_triangles[tri_ind];
-            intersected_tri_inds.pop_front();
-            auto e_next = intersected_edges.front();
-            intersected_edges.pop_front();
-
-            auto next_tri_ind = triangleOppositeOfEdge(tri, e_next);
-            auto &next_tri = m_triangles[next_tri_ind];
-
-            assert(next_tri_ind != -1); //! triangle must contain e_next;
-
-            // auto v_current_ind = m_tri_ind2vert_inds[tri_ind][oppositeOfEdge(tri, e_next)];
-            auto v_current = tri.verts[oppositeOfEdge(tri, e_next)];
-            auto v_opposite_ind_in_tri = oppositeIndex(tri_ind, next_tri);
-            auto v_opposite_current = next_tri.verts[v_opposite_ind_in_tri];
-
-            //! we can swap edges only in convex quadrilaterals otherwise bad shapes get created
-            if (isConvex(v_current, e_next.from, v_opposite_current, e_next.to()))
-            {
-                if (isCounterClockwise(v_opposite_current, vi, vj))
-                {
-                    swapConnectingEdgeCounterClockwise(next_tri_ind, tri_ind);
-                }
-                else
-                {
-                    swapConnectingEdgeClockwise(next_tri_ind, tri_ind);
-                }
-                // drawTriangulation(*this, window);
-                // drawTriInds(*this, window);
-                window.display();
-
-                assert(allTrianglesValid());
-                assert(triangulationIsConsistent());
-
-                e_next = {v_current, v_opposite_current};
-
-                if (edgesIntersect(e_next, e_inserted))
-                {
-                    intersected_edges.push_back(e_next);
-                    intersected_tri_inds.push_back(tri_ind);
-                    auto ind_in_tri = oppositeOfEdge(m_triangles.at(tri_ind), e_next);
-                }
-                else
-                {
-                    newly_created_edges.push_back(e_next);
-                    newly_created_edge_tris.push_back({tri_ind, next_tri_ind});
-                }
-            }
-            else
-            {
-                intersected_edges.push_back(e_next);
-                intersected_tri_inds.push_back(tri_ind);
-            }
-        }
-
-        m_fixed_edges.insert(e_inserted);
 
         //! Fix Delaunay triangulation (Steps 4.1 - 4.3)
         bool some_swap_happened = true;
@@ -1462,6 +1295,10 @@ namespace cdt
         }
     }
 
+    //! \brief looks for existing constrained edges that overlap with new edge vi - vj
+    //! \param vi   first point of the new edge
+    //! \param vj   second point of the new edge
+    //! \returns    a list of edges defined by their vertex indices
     template <class Vertex>
     std::vector<EdgeI<Vertex>> Triangulation<Vertex>::findOverlappingConstraints(const Vertex &vi, const Vertex &vj)
     {
@@ -1513,6 +1350,7 @@ namespace cdt
         auto opp_vertex = v_right;
         auto prev_opp_vertex = opp_vertex;
 
+        //! walks towards vj and looks for overlaps
         while (v_current != vj)
         {
             auto &tri = m_triangles.at(tri_ind);
@@ -1544,8 +1382,12 @@ namespace cdt
         return overlapps;
     }
 
+    //! \brief looks for existing constrained edges that overlap with new edge vi - vj
+    //! \param vi   first point of the new edge
+    //! \param vj   second point of the new edge
+    //! \returns    a list of edges defined by their vertex indices
     template <class Vertex>
-    std::vector<EdgeVInd> Triangulation<Vertex>::findOverlappingConstraints2(const Vertex &vi, const Vertex &vj)
+    std::vector<EdgeVInd> Triangulation<Vertex>::findOverlappingEdges(const Vertex &vi, const Vertex &vj)
     {
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
@@ -1584,6 +1426,7 @@ namespace cdt
             }
             if (segmentsIntersect(v_left, v_right, vi, vj))
             {
+                //! we found direction where vj must lie;
                 tri_ind = triangleOppositeOfEdge(tri, {v_left, v_right});
                 break;
             }
@@ -1601,6 +1444,7 @@ namespace cdt
         auto opp_vertex = v_right;
         auto prev_opp_vertex = opp_vertex;
 
+        //! walk towards vj and gather overlapping edges
         while (v_current != vj)
         {
             auto &tri = m_triangles.at(tri_ind);
