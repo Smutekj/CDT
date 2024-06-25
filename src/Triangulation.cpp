@@ -84,7 +84,7 @@ namespace cdt
     //! \param start_from_last_found whether we start looking from previously found triangle... uses search grid if false
     //!\returns index of a triangle containing query_point or -1 if no such triangle is found
     template <class Vertex>
-    TriInd Triangulation<Vertex>::findTriangle(Vertex query_point, bool from_last_found)
+    TriInd Triangulation<Vertex>::findTriangleFromVertex(Vertex query_point, bool from_last_found)
     {
         TriInd tri_ind = m_last_found;
         if (!from_last_found)
@@ -811,7 +811,7 @@ namespace cdt
             return data;
         }
 
-        auto tri_ind = findTriangle(new_vertex, search_from_last_one);
+        auto tri_ind = findTriangleFromVertex(new_vertex, search_from_last_one);
         const auto old_triangle = m_triangles[tri_ind];
 
         data.overlapping_vertex = findOverlappingVertex(new_vertex, tri_ind);
@@ -1467,9 +1467,9 @@ namespace cdt
     {
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
-        const auto start_tri_ind = findTriangle(vi, false);
+        const auto start_tri_ind = findTriangleFromVertex(vi, false);
         const auto start_tri = m_triangles[start_tri_ind];
-        const auto end_tri_ind = findTriangle(vj, true);
+        const auto end_tri_ind = findTriangleFromVertex(vj, true);
         const auto end_tri = m_triangles[end_tri_ind];
 
         auto tri_ind = start_tri_ind;
@@ -1549,9 +1549,9 @@ namespace cdt
     {
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
-        const auto start_tri_ind = findTriangle(vi, false);
+        const auto start_tri_ind = findTriangleFromVertex(vi, false);
         const auto start_tri = m_triangles[start_tri_ind];
-        const auto end_tri_ind = findTriangle(vj, true);
+        const auto end_tri_ind = findTriangleFromVertex(vj, true);
         const auto end_tri = m_triangles[end_tri_ind];
 
         auto tri_ind = start_tri_ind;
@@ -1643,109 +1643,6 @@ namespace cdt
         return overlapps;
     }
 
-    // template <class Vertex>
-    // void Triangulation<Vertex>::findIntersectingEdges(const EdgeVInd &e, std::deque<EdgeI<Vertex>> &intersected_edges,
-    //                                                   std::deque<TriInd> &intersected_tri_inds)
-    // {
-    //     const auto vi_ind = e.from;
-    //     const auto vj_ind = e.to;
-    //     if (vi_ind == vj_ind)
-    //     {
-    //         return;
-    //     }
-    //     const auto vi = m_vertices[vi_ind];
-    //     const auto vj = m_vertices[vj_ind];
-
-    //     const auto start_tri_ind = findTriangle(vi, false);
-    //     const auto start_tri = m_triangles[start_tri_ind];
-    //     const auto end_tri_ind = findTriangle(vj, true);
-    //     const auto end_tri = m_triangles[end_tri_ind];
-
-    //     EdgeI e_inserted(vi, vj);
-
-    //     auto tri_ind = start_tri_ind;
-    //     auto tri = m_triangles[tri_ind];
-    //     auto index_in_tri = indexOf(vi, tri);
-    //     EdgeI e_next = {tri.verts[prev(index_in_tri)], tri.verts[next(index_in_tri)]};
-    //     if (index_in_tri == -1)
-    //     {
-    //         findTriangle(vi, false);
-    //     }
-    //     bool second_round = false;
-    //     //! find first direction of walk by looking at triangles that contain vi;
-    //     while (!edgesIntersect(e_next, e_inserted))
-    //     {
-    //         tri_ind = tri.neighbours[index_in_tri];
-    //         tri = m_triangles[tri_ind];
-    //         index_in_tri = indexOf(vi, tri);
-
-    //         e_next = {tri.verts[prev(index_in_tri)], tri.verts[next(index_in_tri)]};
-
-    //         if (tri_ind == start_tri_ind)
-    //         {
-    //             if (second_round) //! we are walking in circles so
-    //                 return;
-    //             second_round = true;
-    //         }
-
-    //         if (e_next.from == vj)
-    //         {
-    //             m_triangles[tri_ind].is_constrained[prev(index_in_tri)] = true;
-    //             const auto tri_ind_opposite = triangleOppositeOfEdge(tri, e_inserted);
-    //             const auto ind_in_opposite_tri = indexOf(vi, m_triangles[tri_ind_opposite]);
-    //             m_triangles[tri_ind_opposite].is_constrained[ind_in_opposite_tri] = true;
-    //             return; //! the end vertex of the constraint is already connected to start vertex;
-    //         }
-    //         else if (e_next.to() == vj)
-    //         {
-    //             m_triangles[tri_ind].is_constrained[index_in_tri] = true;
-    //             const auto tri_ind_opposite = triangleOppositeOfEdge(tri, e_inserted);
-    //             const auto ind_in_opposite_tri = indexOf(vj, m_triangles[tri_ind_opposite]);
-    //             m_triangles[tri_ind_opposite].is_constrained[ind_in_opposite_tri] = true;
-    //             return;
-    //         }
-    //     }
-    //     intersected_edges.push_back(e_next);
-    //     intersected_tri_inds.push_back({tri_ind});
-    //     auto v_current = tri.verts[(index_in_tri + 1) % 3];
-    //     tri_ind = tri.neighbours[(index_in_tri + 1) % 3];
-    //     EdgeI<Vertex> e_next1;
-    //     EdgeI<Vertex> e_next2;
-
-    //     //! walk in the found direction to the triangle containing end_ind;
-    //     while (tri_ind != end_tri_ind)
-    //     {
-    //         tri = m_triangles[tri_ind];
-    //         index_in_tri = indexOf(v_current, tri);
-    //         assert(index_in_tri != -1); //! we expect v_current to always exist in tri
-
-    //         e_next1 = {tri.verts[(index_in_tri) % 3], tri.verts[(index_in_tri + 1) % 3]};
-    //         e_next2 = {tri.verts[(index_in_tri + 1) % 3], tri.verts[(index_in_tri + 2) % 3]};
-    //         if (e_next1.from == vj or e_next2.to() == vj or e_next1.to() == vj)
-    //         {
-    //             break; //! we found end_v_ind;
-    //         }
-    //         intersected_tri_inds.push_back(tri_ind);
-
-    //         if (edgesIntersect(e_next1, e_inserted))
-    //         {
-    //             tri_ind = tri.neighbours[index_in_tri];
-    //             intersected_edges.push_back(e_next1);
-    //         }
-    //         else if (edgesIntersect(e_next2, e_inserted))
-    //         {
-    //             intersected_edges.push_back(e_next2);
-    //             tri_ind = tri.neighbours[(index_in_tri + 1) % 3];
-    //             v_current = tri.verts[(index_in_tri + 1) % 3];
-    //         }
-    //         else
-    //         {
-    //             break;
-    //         }
-    //     }
-    //     //    intersected_tri_inds.push_back(tri_ind); //! there is one more triangle compared to intersected edges
-    // }
-
     //! \brief finds existing edges and their corresponding triangles that would intersect with edge \p e
     //! \brief writes the edges into \p intersected_edges and triangles into \p intersected_tri_inds
     //! \param e edge containing vertex indices
@@ -1764,9 +1661,9 @@ namespace cdt
         const auto vi = m_vertices[vi_ind];
         const auto vj = m_vertices[vj_ind];
 
-        const auto start_tri_ind = findTriangle(vi, false);
+        const auto start_tri_ind = findTriangleFromVertex(vi, false);
         const auto start_tri = m_triangles[start_tri_ind];
-        const auto end_tri_ind = findTriangle(vj, true);
+        const auto end_tri_ind = findTriangleFromVertex(vj, true);
         const auto end_tri = m_triangles[end_tri_ind];
 
         EdgeI<Vertex> e_inserted(vi, vj);
@@ -2027,8 +1924,10 @@ namespace cdt
                dot(v_query - v1, v2 - v1) * dot(v_query - v2, v2 - v1) <= 0;
     }
 
-    template class Triangulation<cdt::Vector2i>;
+    template class Triangulation<cdt::Vector2<int>>;
     template class Triangulation<cdt::Vector2<unsigned int>>;
+    template class Triangulation<cdt::Vector2<unsigned short>>;
     template class Triangulation<cdt::Vector2<unsigned char>>;
+    template class Triangulation<cdt::Vector2<float>>;
 
 } // namespace cdt

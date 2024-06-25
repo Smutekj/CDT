@@ -127,7 +127,7 @@ namespace cdt
         VertInd findOverlappingVertex(const Vertex &new_vertex, const TriInd tri_ind) const;
         EdgeVInd findOverlappingEdge(const Vertex &new_vertex, const TriInd tri_ind) const;
 
-        TriInd findTriangle(Vertex query_point, bool start_from_last_found = false);
+        TriInd findTriangleFromVertex(Vertex query_point, bool start_from_last_found = false);
 
         bool edgesIntersect(const EdgeVInd e1, const EdgeVInd e2) const noexcept;
         bool edgesIntersect(const EdgeI<Vertex> e1, const EdgeI<Vertex> e2) const noexcept;
