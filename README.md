@@ -1,15 +1,26 @@
 # ConstrainedDelaunay
 C++ Implementation of the Constrained Delaunay Triangulation (CDT) made specifically for games, that use a rectangular shaped map. The triangulation vertices lie on positive integer indexed **Grid**, which is ideal for most grid based games. This means we don't have to rely on floating point arithmetic in order to check if a vertex exists in the CDT. The user will be allowed to pick a coordinate type as either 8bit, 16bit, or 32 bit unsigned integer depending. The advantage of using smaller types is that triangles themselves are smaller and thus more of them fit into a single cache line.
 
-In a future I will add option to choose float based coordinates, so that I can make 3D terrains or something.
 
-
-Examples demonstrate how the CDT can be used to implement:
+The CDT could be used how the CDT can be used to implement:
 1. pathfinding
 2. shadow casting and vision field construction
-3.  
+3. surface extraction from points in 3D (e.g. for terrain generation)
+4. ???
+5. profit 
 
+## Build
 
+the library can be built using CMake. From your project directory do:
+
+```
+mkdir build
+cd build
+cmake ../
+```
+
+If you want to see Demo use the ``-DBUILD_EXAMPLE=ON`` flag when calling cmake. For building tests use:
+``-DBUILD_TESTS=ON``
 
 ## Usage
 
