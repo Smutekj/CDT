@@ -9,7 +9,18 @@ The CDT could be used how the CDT can be used to implement:
 4. ???
 5. profit 
 
+## Build
 
+the library can be built using CMake. From your project directory do:
+
+```
+mkdir build
+cd build
+cmake ../
+```
+
+If you want to see Demo use the ``-DBUILD_EXAMPLE=ON`` flag when calling cmake. For building tests use:
+``-DBUILD_TESTS=ON``
 
 ## Usage
 
