@@ -1200,19 +1200,9 @@ namespace cdt
         m_tri_ind2vert_inds.at(tri_ind_a)[prev(v_a_ind_in_tri)] = m_tri_ind2vert_inds.at(tri_ind_b)[v_b_ind_in_tri];
         m_tri_ind2vert_inds.at(tri_ind_b)[prev(v_b_ind_in_tri)] = m_tri_ind2vert_inds.at(tri_ind_a)[v_a_ind_in_tri];
 
-        //! tell neighbours that there was a swap changed
-        if (nb_prev != -1)
-        {
-            auto &changed_neighbour_tri = m_triangles[nb_prev];
-            auto ind_in_neighbour = oppositeIndex(tri_ind_b, changed_neighbour_tri);
-            changed_neighbour_tri.neighbours[next(ind_in_neighbour)] = tri_ind_a;
-        }
-        if (na_prev != -1)
-        {
-            auto &changed_neighbour_tri = m_triangles[na_prev];
-            auto ind_in_neighbour = oppositeIndex(tri_ind_a, changed_neighbour_tri);
-            changed_neighbour_tri.neighbours[next(ind_in_neighbour)] = tri_ind_b;
-        }
+        //! tell neighbours that there was a swap
+        updateIndsOfNeighbour(nb_prev, tri_ind_b, tri_ind_a);
+        updateIndsOfNeighbour(na_prev, tri_ind_a, tri_ind_b);
     }
 
     //! \brief looks for existing constrained edges that overlap with new edge vi - vj
