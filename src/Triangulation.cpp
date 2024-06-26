@@ -516,7 +516,7 @@ namespace cdt
         tri_a_new.is_constrained[next(ind_in_tri_a)] = true;
         //! we inherit constraint from tri_a
         tri_a_new.is_constrained[prev(ind_in_tri_a)] = tri_a.is_constrained[prev(ind_in_tri_a)];
-        
+
         //! update old ones
         m_tri_ind2vert_inds[tri_ind_a][prev(ind_in_tri_a)] = new_vertex_ind;
         tri_a.verts[prev(ind_in_tri_a)] = new_vertex;
@@ -529,8 +529,8 @@ namespace cdt
         tri_b_new.neighbours[ind_in_tri_b] = tri_ind_b;
         tri_b_new.neighbours[next(ind_in_tri_b)] = tri_ind_a;
         tri_b_new.is_constrained[next(ind_in_tri_b)] = true;
-         tri_b_new.is_constrained[prev(ind_in_tri_b)] = tri_b.is_constrained[prev(ind_in_tri_b)];
-        
+        tri_b_new.is_constrained[prev(ind_in_tri_b)] = tri_b.is_constrained[prev(ind_in_tri_b)];
+
         m_tri_ind2vert_inds[tri_ind_b][prev(ind_in_tri_b)] = new_vertex_ind;
         tri_b.verts[prev(ind_in_tri_b)] = new_vertex;
         tri_b.neighbours[next(ind_in_tri_b)] = tri_ind_a_new;
@@ -540,8 +540,8 @@ namespace cdt
         //! we tell old triangles that they have a new neighbour;
         updateIndsOfNeighbour(tri_a_new.neighbours[prev(ind_in_tri_a)], tri_ind_a, tri_ind_a_new);
         updateIndsOfNeighbour(tri_b_new.neighbours[prev(ind_in_tri_b)], tri_ind_b, tri_ind_b_new);
-    
-        //! insert triangles and update 
+
+        //! insert triangles and update
         m_triangles.push_back(tri_a_new);
         m_triangles.push_back(tri_b_new);
         m_triangles[tri_ind_a] = tri_a;
@@ -553,22 +553,11 @@ namespace cdt
 
         //! gather triangles that changed to fix their Delaunay property
         std::stack<std::pair<TriInd, TriInd>> triangles_to_fix;
-        if (tri_a_new.neighbours[prev(ind_in_tri_a)] != -1)
-        {
-            triangles_to_fix.push({tri_ind_a_new, tri_a_new.neighbours[prev(ind_in_tri_a)]});
-        }
-        if (tri_a.neighbours[ind_in_tri_a] != -1)
-        {
-            triangles_to_fix.push({tri_ind_a, tri_a.neighbours[ind_in_tri_a]});
-        }
-        if (tri_b_new.neighbours[prev(ind_in_tri_b)] != -1)
-        {
-            triangles_to_fix.push({tri_ind_b_new, tri_b_new.neighbours[prev(ind_in_tri_b)]});
-        }
-        if (tri_b.neighbours[ind_in_tri_b] != -1)
-        {
-            triangles_to_fix.push({tri_ind_b, tri_b.neighbours[ind_in_tri_b]});
-        }
+        triangles_to_fix.push({tri_ind_a_new, tri_a_new.neighbours[prev(ind_in_tri_a)]});
+        triangles_to_fix.push({tri_ind_a, tri_a.neighbours[ind_in_tri_a]});
+        triangles_to_fix.push({tri_ind_b_new, tri_b_new.neighbours[prev(ind_in_tri_b)]});
+        triangles_to_fix.push({tri_ind_b, tri_b.neighbours[ind_in_tri_b]});
+
         fixDelaunayProperty(new_vertex, triangles_to_fix);
     }
 
@@ -800,19 +789,9 @@ namespace cdt
 
         //! fix delaunay property
         std::stack<std::pair<TriInd, TriInd>> triangles_to_fix;
-        if (old_triangle.neighbours[0] != -1)
-        {
-            triangles_to_fix.push({first_new_triangle_ind, old_triangle.neighbours[0]});
-        }
-        if (old_triangle.neighbours[1] != -1)
-        {
-            triangles_to_fix.push({second_new_triangle_ind, old_triangle.neighbours[1]});
-        }
-        if (old_triangle.neighbours[2] != -1)
-        {
-            triangles_to_fix.push({third_new_triangle_ind, old_triangle.neighbours[2]});
-        }
-
+        triangles_to_fix.push({first_new_triangle_ind, old_triangle.neighbours[0]});
+        triangles_to_fix.push({second_new_triangle_ind, old_triangle.neighbours[1]});
+        triangles_to_fix.push({third_new_triangle_ind, old_triangle.neighbours[2]});
 
         m_triangles.push_back(t2_new);
         m_triangles.push_back(t3_new);
@@ -1610,10 +1589,11 @@ namespace cdt
             auto old_tri_ind = triangles_to_fix.top().first;
             auto next_tri_ind = triangles_to_fix.top().second;
             triangles_to_fix.pop();
-            // if(next_tri_ind == -1) 
-            // {
-            //     continue;
-            // }
+            if (next_tri_ind == -1)
+            {
+                continue;
+            }
+            
             auto &old_tri = m_triangles[old_tri_ind];
             auto &next_tri = m_triangles[next_tri_ind];
 
@@ -1631,18 +1611,11 @@ namespace cdt
                 assert(isCounterClockwise(a, v3, vp));
                 swapConnectingEdgeClockwise(old_tri_ind, next_tri_ind);
 
-                if (old_tri.neighbours[next(new_vert_ind_in_tri)] != -1)
-                {
-                    triangles_to_fix.emplace(old_tri_ind, old_tri.neighbours[next(new_vert_ind_in_tri)]);
-                }
-                if (next_tri.neighbours[prev(opposite_ind_in_tri)] != -1)
-                {
-                    triangles_to_fix.emplace(next_tri_ind, next_tri.neighbours[prev(opposite_ind_in_tri)]);
-                }
+                triangles_to_fix.emplace(old_tri_ind, old_tri.neighbours[next(new_vert_ind_in_tri)]);
+                triangles_to_fix.emplace(next_tri_ind, next_tri.neighbours[prev(opposite_ind_in_tri)]);
             }
         }
-                assert(allTrianglesValid());
-
+        assert(allTrianglesValid());
     }
 
     template class Triangulation<cdt::Vector2<int>>;
