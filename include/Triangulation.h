@@ -6,6 +6,7 @@
 #include <array>
 #include <memory>
 #include <deque>
+#include <stack>
 
 #include "Grid.h"
 
@@ -55,9 +56,10 @@ namespace cdt
     template <class Vertex>
     struct Triangle
     {
-        Vertex verts[3];                    //! vertex coordinates
-        TriInd neighbours[3] = {-1u, -1u, -1u};   //! indices of neighbouring triangles
-        std::array<bool, 3> is_constrained = {false, false, false};; //! whether corresponding edge is constrained (is this needed here?)
+        Vertex verts[3];                        //! vertex coordinates
+        TriInd neighbours[3] = {-1u, -1u, -1u}; //! indices of neighbouring triangles
+        std::array<bool, 3> is_constrained = {false, false, false};
+        ; //! whether corresponding edge is constrained (is this needed here?)
 
         explicit Triangle() = default;
 
@@ -116,14 +118,13 @@ namespace cdt
         bool allAreDelaunay() const;
         std::vector<EdgeI<Vertex>> findOverlappingConstraints(const Vertex &vi, const Vertex &vj);
 
-
     private:
         bool areCollinear(const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
         bool liesBetween(const Vertex &v, const Vertex &v_left, const Vertex &v_right) const;
 
         VertInd findOverlappingVertex(const Vertex &new_vertex, const TriInd tri_ind) const;
         EdgeVInd findOverlappingEdge(const Vertex &new_vertex, const TriInd tri_ind) const;
-        
+
         std::vector<EdgeVInd> findOverlappingEdges(const Vertex &vi, const Vertex &vj);
 
         TriInd findTriangleFromVertex(Vertex query_point, bool start_from_last_found = false);
@@ -155,8 +156,12 @@ namespace cdt
         bool isDelaunay(const Triangle<Vertex> &tri) const;
         bool triangulationIsConsistent() const;
 
+        void fixDelaunayProperty(Vertex new_vertex, std::stack<std::pair<TriInd, TriInd>> &triangles_to_fix);
+
+        void updateIndsOfNeighbour(TriInd to_update, TriInd old_neighbour, TriInd new_neighbour);
+        
         template <class VectorType>
-        bool withinBoundary(const VectorType& query)
+        bool withinBoundary(const VectorType &query)
         {
             return query.x >= 0 && query.x <= m_boundary.x &&
                    query.y >= 0 && query.y <= m_boundary.y;
@@ -216,13 +221,15 @@ namespace cdt
     template <class Vertex>
     inline int indInTriOf(const Triangle<Vertex> &tri, const TriInd neighbour)
     {
-        if(tri.neighbours[0] == neighbour)
+        if (tri.neighbours[0] == neighbour)
         {
             return 0;
-        }else if(tri.neighbours[1] == neighbour)
+        }
+        else if (tri.neighbours[1] == neighbour)
         {
             return 1;
-        }else if(tri.neighbours[2] == neighbour)
+        }
+        else if (tri.neighbours[2] == neighbour)
         {
             return 2;
         }

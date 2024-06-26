@@ -7,7 +7,6 @@
 #include <string>
 #include <stack>
 
-
 namespace cdt
 {
 
@@ -582,7 +581,7 @@ namespace cdt
         std::stack<std::pair<TriInd, TriInd>> triangles_to_fix;
         if (tri_a_new.neighbours[(ind_in_tri_a + 2) % 3] != -1)
         {
-            triangles_to_fix.push({tri_ind_a_new, tri_a_new.neighbours[(ind_in_tri_a + 2) % 3]});
+            triangles_to_fix.push({tri_ind_a_new, tri_a_new.neighbours[prev(ind_in_tri_a)]});
         }
         if (tri_a.neighbours[ind_in_tri_a] != -1)
         {
@@ -591,48 +590,14 @@ namespace cdt
 
         if (tri_b_new.neighbours[(ind_in_tri_b + 2) % 3] != -1)
         {
-            triangles_to_fix.push({tri_ind_b_new, tri_b_new.neighbours[(ind_in_tri_b + 2) % 3]});
+            triangles_to_fix.push({tri_ind_b_new, tri_b_new.neighbours[prev(ind_in_tri_b)]});
         }
         if (tri_b.neighbours[ind_in_tri_b] != -1)
         {
             triangles_to_fix.push({tri_ind_b, tri_b.neighbours[ind_in_tri_b]});
         }
 
-        while (!triangles_to_fix.empty())
-        {
-            auto next_tri_ind = triangles_to_fix.top().second;
-            auto &next_tri = m_triangles[next_tri_ind];
-            auto old_tri_ind = triangles_to_fix.top().first;
-            auto &old_tri = m_triangles[old_tri_ind];
-            triangles_to_fix.pop();
-
-            auto opposite_ind_in_tri = oppositeIndex(old_tri_ind, next_tri);
-            auto new_vert_ind_in_tri = indexOf(new_vertex, old_tri);
-            auto v3 = next_tri.verts[opposite_ind_in_tri];
-            auto v1 = next_tri.verts[(opposite_ind_in_tri + 1) % 3];
-            auto v2 = next_tri.verts[(opposite_ind_in_tri + 2) % 3];
-            auto vp = new_vertex;
-
-            ;
-            //        EdgeVInd flipped_edge = {next_tri.vertinds[(opposite_ind_in_tri + 1) % 3],
-            //        next_tri.vertinds[(opposite_ind_in_tri + 2) % 3]};
-            if (needSwap(vp, v1, v2, v3) && !next_tri.is_constrained[next(opposite_ind_in_tri)])
-            {
-
-                auto &a = old_tri.verts[(new_vert_ind_in_tri + 2) % 3];
-                assert(isCounterClockwise(a, v3, vp));
-                swapConnectingEdgeClockwise(old_tri_ind, next_tri_ind);
-
-                if (old_tri.neighbours[(new_vert_ind_in_tri + 1) % 3] != -1)
-                {
-                    triangles_to_fix.emplace(old_tri_ind, old_tri.neighbours[(new_vert_ind_in_tri + 1) % 3]);
-                }
-                if (next_tri.neighbours[(opposite_ind_in_tri + 2) % 3] != -1)
-                {
-                    triangles_to_fix.emplace(next_tri_ind, next_tri.neighbours[(opposite_ind_in_tri + 2) % 3]);
-                }
-            }
-        }
+        fixDelaunayProperty(new_vertex, triangles_to_fix);
     }
 
     //! \param new_vertex
@@ -812,8 +777,6 @@ namespace cdt
         m_tri_ind2vert_inds.push_back(m_tri_ind2vert_inds[tri_ind]);
         m_tri_ind2vert_inds.push_back(m_tri_ind2vert_inds[tri_ind]);
 
-        // assert(hasGoodOrientation(old_triangle));
-
         for (int i = 0; i < 3; ++i)
         {
             t1_new.is_constrained[i] = false;
@@ -915,24 +878,24 @@ namespace cdt
             auto opposite_ind_in_tri = oppositeIndex(old_tri_ind, next_tri);
             auto newvert_ind_in_tri = indexOf(new_vertex, old_tri);
             auto v3 = next_tri.verts[opposite_ind_in_tri];
-            auto v1a = next_tri.verts[(opposite_ind_in_tri + 1) % 3];
-            auto v2a = next_tri.verts[(opposite_ind_in_tri + 2) % 3];
+            auto v1a = next_tri.verts[next(opposite_ind_in_tri)];
+            auto v2a = next_tri.verts[prev(opposite_ind_in_tri)];
             auto vp = new_vertex;
 
             if (needSwap(vp, v1a, v2a, v3) && !next_tri.is_constrained[next(opposite_ind_in_tri)])
             {
 
-                auto &a = old_tri.verts[(newvert_ind_in_tri + 2) % 3];
+                auto &a = old_tri.verts[prev(newvert_ind_in_tri)];
                 assert(isCounterClockwise(a, v3, vp));
                 swapConnectingEdgeCounterClockwise(old_tri_ind, next_tri_ind);
 
-                if (old_tri.neighbours[(newvert_ind_in_tri + 1) % 3] != -1)
+                if (old_tri.neighbours[next(newvert_ind_in_tri)] != -1)
                 {
-                    triangles_to_fix.emplace(old_tri_ind, old_tri.neighbours[(newvert_ind_in_tri + 1) % 3]);
+                    triangles_to_fix.emplace(old_tri_ind, old_tri.neighbours[next(newvert_ind_in_tri)]);
                 }
-                if (next_tri.neighbours[(opposite_ind_in_tri + 2) % 3] != -1)
+                if (next_tri.neighbours[prev(opposite_ind_in_tri)] != -1)
                 {
-                    triangles_to_fix.emplace(next_tri_ind, next_tri.neighbours[(opposite_ind_in_tri + 2) % 3]);
+                    triangles_to_fix.emplace(next_tri_ind, next_tri.neighbours[prev(opposite_ind_in_tri)]);
                 }
             }
         }
@@ -1183,18 +1146,20 @@ namespace cdt
         m_tri_ind2vert_inds.at(tri_ind_a)[next(v_a_ind_in_tri)] = m_tri_ind2vert_inds.at(tri_ind_b)[v_b_ind_in_tri];
         m_tri_ind2vert_inds.at(tri_ind_b)[next(v_b_ind_in_tri)] = m_tri_ind2vert_inds.at(tri_ind_a)[v_a_ind_in_tri];
 
-        //! tell neighbours that there was a swap changed
-        if (nb != -1)
+        //! tell neighbours that there was a swap
+        updateIndsOfNeighbour(nb, tri_ind_b, tri_ind_a);
+        updateIndsOfNeighbour(na, tri_ind_a, tri_ind_b);
+    }
+
+    template <class Vertex>
+    void Triangulation<Vertex>::updateIndsOfNeighbour(TriInd to_update, TriInd old_neighbour, TriInd new_neighbour)
+    {
+        if (to_update != -1)
         {
-            auto &changed_neighbour_tri = m_triangles[nb];
-            auto ind_in_neighbour = oppositeIndex(tri_ind_b, changed_neighbour_tri);
-            changed_neighbour_tri.neighbours[next(ind_in_neighbour)] = tri_ind_a;
-        }
-        if (na != -1)
-        {
-            auto &changed_neighbour_tri = m_triangles[na];
-            auto ind_in_neighbour = oppositeIndex(tri_ind_a, changed_neighbour_tri);
-            changed_neighbour_tri.neighbours[next(ind_in_neighbour)] = tri_ind_b;
+            auto &to_update_tri = m_triangles.at(to_update);
+            auto ind_in_neighbour = indInTriOf(to_update_tri, old_neighbour);
+            //! update neighbour inds of the 
+            to_update_tri.neighbours[ind_in_neighbour] = new_neighbour;
         }
     }
 
@@ -1721,6 +1686,48 @@ namespace cdt
     {
         return areCollinear(v_query, v1, v2) &&
                dot(v_query - v1, v2 - v1) * dot(v_query - v2, v2 - v1) <= 0;
+    }
+
+    //! \brief fixes triangles around \p new_vertex not satisfying the Delaunay property by flipping edges
+    //! \param  new_vertex
+    //! \param  triangles_to_fix pairs of triangle inds with
+    template <class Vertex>
+    void Triangulation<Vertex>::fixDelaunayProperty(Vertex new_vertex,
+                                                    std::stack<std::pair<TriInd, TriInd>> &triangles_to_fix)
+    {
+        //! fix delaunay
+        while (!triangles_to_fix.empty())
+        {
+            auto next_tri_ind = triangles_to_fix.top().second;
+            auto &next_tri = m_triangles[next_tri_ind];
+            auto old_tri_ind = triangles_to_fix.top().first;
+            auto &old_tri = m_triangles[old_tri_ind];
+            triangles_to_fix.pop();
+
+            auto opposite_ind_in_tri = oppositeIndex(old_tri_ind, next_tri);
+            auto new_vert_ind_in_tri = indexOf(new_vertex, old_tri);
+            auto v3 = next_tri.verts[opposite_ind_in_tri];
+            auto v1 = next_tri.verts[next(opposite_ind_in_tri)];
+            auto v2 = next_tri.verts[prev(opposite_ind_in_tri)];
+            auto vp = new_vertex;
+
+            if (needSwap(vp, v1, v2, v3) && !next_tri.is_constrained[next(opposite_ind_in_tri)])
+            {
+
+                auto &a = old_tri.verts[(new_vert_ind_in_tri + 2) % 3];
+                assert(isCounterClockwise(a, v3, vp));
+                swapConnectingEdgeClockwise(old_tri_ind, next_tri_ind);
+
+                if (old_tri.neighbours[(new_vert_ind_in_tri + 1) % 3] != -1)
+                {
+                    triangles_to_fix.emplace(old_tri_ind, old_tri.neighbours[(new_vert_ind_in_tri + 1) % 3]);
+                }
+                if (next_tri.neighbours[(opposite_ind_in_tri + 2) % 3] != -1)
+                {
+                    triangles_to_fix.emplace(next_tri_ind, next_tri.neighbours[(opposite_ind_in_tri + 2) % 3]);
+                }
+            }
+        }
     }
 
     template class Triangulation<cdt::Vector2<int>>;
