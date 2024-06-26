@@ -116,7 +116,6 @@ namespace cdt
         void updateCellGrid();
 
         bool allAreDelaunay() const;
-        std::vector<EdgeI<Vertex>> findOverlappingConstraints(const Vertex &vi, const Vertex &vj);
 
     private:
         bool areCollinear(const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
@@ -126,6 +125,7 @@ namespace cdt
         EdgeVInd findOverlappingEdge(const Vertex &new_vertex, const TriInd tri_ind) const;
 
         std::vector<EdgeVInd> findOverlappingEdges(const Vertex &vi, const Vertex &vj);
+        std::vector<EdgeI<Vertex>> findOverlappingConstraints(const Vertex &vi, const Vertex &vj);
 
         TriInd findTriangleFromVertex(Vertex query_point, bool start_from_last_found = false);
 
@@ -136,36 +136,33 @@ namespace cdt
 
         bool isConvex(const Vertex v1, const Vertex v2, const Vertex v3, const Vertex v4) const;
 
-        int oppositeOfEdge(const Triangle<Vertex> &tri, const EdgeI<Vertex> &e) const;
-
-        TriInd triangleOppositeOfEdge(const Triangle<Vertex> &tri, const EdgeI<Vertex> &edge) const;
 
         void swapConnectingEdgeClockwise(const TriInd &tri_ind_a, const TriInd &tri_ind_b);
         void swapConnectingEdgeCounterClockwise(const TriInd &tri_ind_a, const TriInd &tri_ind_b);
 
+        void fixDelaunayProperty(Vertex new_vertex, std::stack<std::pair<TriInd, TriInd>> &triangles_to_fix);
+
         void findIntersectingEdges(const EdgeVInd &e, std::deque<EdgeI<Vertex>> &intersected_edges,
                                    std::deque<TriInd> &intersected_tri_inds);
 
-        bool isCounterClockwise(const Vertex &v_query, const Vertex &v1, const Vertex &v2) const;
         bool needSwap(const Vertex &vp, const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
 
         long long det(const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
+        bool isCounterClockwise(const Vertex &v_query, const Vertex &v1, const Vertex &v2) const;
         bool hasGoodOrientation(const Triangle<Vertex> &tri) const;
         bool allTrianglesValid() const;
-
         bool isDelaunay(const Triangle<Vertex> &tri) const;
         bool triangulationIsConsistent() const;
 
-        void fixDelaunayProperty(Vertex new_vertex, std::stack<std::pair<TriInd, TriInd>> &triangles_to_fix);
+        int oppositeOfEdge(const Triangle<Vertex> &tri, const EdgeI<Vertex> &e) const;
+        TriInd triangleOppositeOfEdge(const Triangle<Vertex> &tri, const EdgeI<Vertex> &edge) const;
 
         void updateIndsOfNeighbour(TriInd to_update, TriInd old_neighbour, TriInd new_neighbour);
-        
+
         template <class VectorType>
-        bool withinBoundary(const VectorType &query)
-        {
-            return query.x >= 0 && query.x <= m_boundary.x &&
-                   query.y >= 0 && query.y <= m_boundary.y;
-        }
+        bool isWithinBoundary(const VectorType &query);
+
+        friend class TriangulationTest; //! controversial but IDGAF
 
     public:
         std::vector<Triangle<Vertex>> m_triangles;

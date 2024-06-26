@@ -135,7 +135,7 @@ namespace cdt
     TriInd Triangulation<Vertex>::findTriangle(cdt::Vector2f query_point, bool from_last_found)
     {
 
-        if (!withinBoundary(query_point))
+        if (!isWithinBoundary(query_point))
         {
             return -1;
         }
@@ -408,7 +408,7 @@ namespace cdt
             return -1;
         }
         assert(i1 != -1 && i2 != -1);
-        return tri.neighbours[(oppositeOfEdge(tri, e) + 1) % 3];
+        return tri.neighbours[next(oppositeOfEdge(tri, e))];
     }
 
     //! \param e1 edge containg indices of vertices forming a first edge
@@ -685,7 +685,7 @@ namespace cdt
     {
         VertexInsertionData data;
 
-        if (!withinBoundary(new_vertex))
+        if (!isWithinBoundary(new_vertex))
         {
             return data;
         }
@@ -1220,16 +1220,11 @@ namespace cdt
         {
             if (liesBetween(v_right, vi, vj))
             {
-                // if (tri.is_constrained[index_in_tri])
-                {
-                    // overlapps.push_back({vi, v_right});
-                    auto a = indexOf(vi, tri);
-                    auto b = indexOf(v_right, tri);
-                    auto a_ind = m_tri_ind2vert_inds.at(tri_ind)[a];
-                    auto b_ind = m_tri_ind2vert_inds.at(tri_ind)[b];
-
-                    overlapps.push_back({a_ind, b_ind});
-                }
+                auto a = indexOf(vi, tri);
+                auto b = indexOf(v_right, tri);
+                auto a_ind = m_tri_ind2vert_inds.at(tri_ind)[a];
+                auto b_ind = m_tri_ind2vert_inds.at(tri_ind)[b];
+                overlapps.push_back({a_ind, b_ind});
                 break;
             }
             if (segmentsIntersect(v_left, v_right, vi, vj))
@@ -1593,7 +1588,7 @@ namespace cdt
             {
                 continue;
             }
-            
+
             auto &old_tri = m_triangles[old_tri_ind];
             auto &next_tri = m_triangles[next_tri_ind];
 
@@ -1616,6 +1611,14 @@ namespace cdt
             }
         }
         assert(allTrianglesValid());
+    }
+
+    template <class Vertex>
+    template <class  VectorType>
+    bool Triangulation<Vertex>::isWithinBoundary(const VectorType &query)
+    {
+        return query.x >= 0 && query.x <= m_boundary.x &&
+               query.y >= 0 && query.y <= m_boundary.y;
     }
 
     template class Triangulation<cdt::Vector2<int>>;
