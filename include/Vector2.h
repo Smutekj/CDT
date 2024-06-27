@@ -81,7 +81,7 @@ namespace cdt
         template <class T1>
         auto operator-(const Vector2<T1> &v) const
         {
-            //! unsigned types are casted into int
+            //! unsigned types are casted into int because differences would overflow
             if constexpr(std::is_unsigned_v<T>)
             {
                 return Vector2<int>{static_cast<int>(x) - v.x, static_cast<int>(y) - v.y};
@@ -219,14 +219,3 @@ namespace cdt
 }
 
 inline cdt::Vector2f asFloat(const cdt::Vector2i &r) { return static_cast<cdt::Vector2f>(r); }
-
-#include <type_traits>
-
-namespace std
-{
-    template <>
-    struct common_type<cdt::Vector2i, cdt::Vector2f>
-    {
-        using type = cdt::Vector2f;
-    };
-}
