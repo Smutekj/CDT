@@ -65,8 +65,6 @@ int main(int argc, char **argv)
     window.setView(view);
 
     std::deque<cdt::VertInd> picked_vertex_inds;
-
-    std::vector<cdt::EdgeI<cdt::Vector2i>> overlaps;
     while (window.isOpen())
     {
 
