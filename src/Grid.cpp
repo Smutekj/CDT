@@ -25,18 +25,6 @@ size_t Grid::coordToCell(const cdt::Vector2f r_coord) const {
     return ix + iy * m_cell_count.x;
 }
 
-// //! \brief computes cell_index of the cell containing given point
-// //! \param r_coords given point 
-// //! \returns cell index
-// size_t Grid::coordToCell(const cdt::Vector2i r_coord) const {
-//     const size_t ix = static_cast<size_t>(std::floor(r_coord.x / m_cell_size.x)) % m_cell_count.x;
-//     const size_t iy = static_cast<size_t>(std::floor(r_coord.y / m_cell_size.y)) % m_cell_count.y;
-
-//     assert(ix + iy * m_cell_count.x < m_cell_count.x * m_cell_count.y);
-//     return ix + iy * m_cell_count.x;
-// }
-
-
 //! \brief computes cell_index of the cell corresponding to given 2D cell coordinates
 //! \param ix
 //! \param iy 
