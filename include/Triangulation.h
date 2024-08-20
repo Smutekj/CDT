@@ -63,7 +63,7 @@ namespace cdt
 
         explicit Triangle() = default;
 
-        utils::Vector2f getCenter() const
+        cdt::Vector2f getCenter() const
         {
             return asFloat(verts[0] + verts[1] + verts[2]) / 3.f;
         }
@@ -86,7 +86,7 @@ namespace cdt
         EdgeVInd overlapping_edge;
     };
 
-    template <class Vertex = utils::Vector2<unsigned int>>
+    template <class Vertex = cdt::Vector2<unsigned int>>
     class Triangulation
     {
     public:
@@ -94,11 +94,11 @@ namespace cdt
         Triangulation() = default;
 
         void reset();
-        void createBoundaryAndSuperTriangle(utils::Vector2i box_size);
-        void createBoundary(utils::Vector2i box_size);
-        void createSuperTriangle(utils::Vector2i box_size);
+        void createBoundaryAndSuperTriangle(cdt::Vector2i box_size);
+        void createBoundary(cdt::Vector2i box_size);
+        void createSuperTriangle(cdt::Vector2i box_size);
 
-        TriInd findTriangle(utils::Vector2f query_point, bool start_from_last_found = false);
+        TriInd findTriangle(cdt::Vector2f query_point, bool start_from_last_found = false);
 
         void insertVertex(const Vertex &v, bool = false);
         void insertVertexIntoSpace(const Vertex &v, TriInd, VertInd);
@@ -174,7 +174,7 @@ namespace cdt
 
     private:
         std::vector<TriInd> m_cell2tri_ind;
-        utils::Vector2i m_boundary;
+        cdt::Vector2i m_boundary;
 
         TriInd m_last_found = 0;      //! cached index of last found triangle (in a lot of cases new searched triangle is
                                       //! near previously found one)
@@ -190,7 +190,7 @@ namespace cdt
 
     // //! \brief used for finding orientation of \p p1 w.r.t. ( \p p3 - \p p2 )
     // // template <typename VectorType2>
-    // inline float sign(const utils::Vector2i &p1, const utils::Vector2i &p2, const utils::Vector2i &p3)
+    // inline float sign(const cdt::Vector2i &p1, const cdt::Vector2i &p2, const cdt::Vector2i &p3)
     // {
     //     return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
     // }
