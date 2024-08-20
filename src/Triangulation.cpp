@@ -7,8 +7,12 @@
 #include <string>
 #include <stack>
 
+#include "../include/Utils/Vector2.h"
+
 namespace cdt
 {
+
+    using namespace utils;
 
     template <class Vertex>
     Triangulation<Vertex>::Triangulation(Vertex box_size)
@@ -132,7 +136,7 @@ namespace cdt
     //! \param start_from_last_found whether we start looking from previously found triangle... uses search grid if false
     //!\returns index of a triangle containing query_point or -1 if no such triangle is found
     template <class Vertex>
-    TriInd Triangulation<Vertex>::findTriangle(cdt::Vector2f query_point, bool from_last_found)
+    TriInd Triangulation<Vertex>::findTriangle(utils::Vector2f query_point, bool from_last_found)
     {
 
         if (!isWithinBoundary(query_point))
@@ -170,7 +174,7 @@ namespace cdt
             const auto v0 = asFloat(tri.verts[0]);
             const auto v1 = asFloat(tri.verts[1]);
             const auto v2 = asFloat(tri.verts[2]);
-            const cdt::Vector2f r_start = (v0 + v1 + v2) / 3.f;
+            const utils::Vector2f r_start = (v0 + v1 + v2) / 3.f;
 
             if (segmentsIntersectOrTouch(r_start, query_point, v0, v1))
             {
@@ -232,11 +236,11 @@ namespace cdt
     //! \brief creates supertriangle which contains specified boundary then
     //! \param boundary dimensions of a boundary contained in supertriangle
     template <class Vertex>
-    void Triangulation<Vertex>::createSuperTriangle(cdt::Vector2i box_size)
+    void Triangulation<Vertex>::createSuperTriangle(utils::Vector2i box_size)
     {
         m_boundary = box_size;
 
-        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, box_size);
+        m_grid = std::make_unique<Grid>(utils::Vector2i{20, 20}, box_size);
         m_cell2tri_ind.resize(m_grid->getNCells(), -1);
 
         Triangle<Vertex> super_triangle;
@@ -260,10 +264,10 @@ namespace cdt
     //!        inserts 4 vertices corresponding to the boundary (upper left point is [0,0])
     //! \param boundary dimensions of a boundary contained in supertriangle
     template <class Vertex>
-    void Triangulation<Vertex>::createBoundaryAndSuperTriangle(cdt::Vector2i box_size)
+    void Triangulation<Vertex>::createBoundaryAndSuperTriangle(utils::Vector2i box_size)
     {
 
-        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, box_size);
+        m_grid = std::make_unique<Grid>(utils::Vector2i{20, 20}, box_size);
         m_cell2tri_ind.resize(m_grid->getNCells(), -1);
 
         Triangle<Vertex> super_triangle;
@@ -312,12 +316,12 @@ namespace cdt
     //!        inserts 4 vertices corresponding to the boundary (upper left point is [0,0])
     //! \param boundary dimensions of a boundary contained in supertriangle
     template <class Vertex>
-    void Triangulation<Vertex>::createBoundary(cdt::Vector2i box_size)
+    void Triangulation<Vertex>::createBoundary(utils::Vector2i box_size)
     {
 
         m_boundary = box_size;
 
-        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, box_size);
+        m_grid = std::make_unique<Grid>(utils::Vector2i{20, 20}, box_size);
         m_cell2tri_ind.resize(m_grid->getNCells(), -1);
 
         Triangle<Vertex> tri_up;
@@ -443,7 +447,7 @@ namespace cdt
         { //! we walk zig-zag so that each next cell grid is close to the last one which helps findTriangle
             for (int i = 0; i < n_cells_x; i++)
             {
-                const cdt::Vector2f r_center = {i * dx + dx / 2.f, j * dy + dy / 2.f};
+                const utils::Vector2f r_center = {i * dx + dx / 2.f, j * dy + dy / 2.f};
                 const auto cell_ind = j * n_cells_x + i;
 
                 bool from_previous_one = true;
@@ -453,7 +457,7 @@ namespace cdt
             j++;
             for (int i = n_cells_x - 1; i >= 0; i--)
             {
-                const cdt::Vector2f r_center = {i * dx + dx / 2.f, j * dy + dy / 2.f};
+                const utils::Vector2f r_center = {i * dx + dx / 2.f, j * dy + dy / 2.f};
                 const auto cell_ind = j * n_cells_x + i;
 
                 bool from_previous_one = true;
@@ -465,7 +469,7 @@ namespace cdt
             int j = n_cells_y - 1;
             for (int i = n_cells_x - 1; i >= 0; i--)
             {
-                const cdt::Vector2f r_center = {i * dx + dx / 2.f, j * dy + dy / 2.f};
+                const utils::Vector2f r_center = {i * dx + dx / 2.f, j * dy + dy / 2.f};
                 const auto cell_ind = j * n_cells_x + i;
 
                 bool from_previous_one = true;
@@ -804,7 +808,7 @@ namespace cdt
     bool Triangulation<Vertex>::isConvex(const Vertex v1, const Vertex v2, const Vertex v3,
                                          const Vertex v4) const
     { //! v1-v3 and v2-v4 are diagonals
-        return segmentsIntersect((cdt::Vector2i)v1, (cdt::Vector2i)v3, (cdt::Vector2i)v2, (cdt::Vector2i)v4);
+        return segmentsIntersect((utils::Vector2i)v1, (utils::Vector2i)v3, (utils::Vector2i)v2, (utils::Vector2i)v4);
     }
 
     //! \param edge represented by vertex coordinates
@@ -1443,10 +1447,10 @@ namespace cdt
     bool Triangulation<Vertex>::needSwap(const Vertex &vp, const Vertex &v1, const Vertex &v2, const Vertex &v3) const
     {
 
-        auto v13 = cdt::Vector2f(v1 - v3);
-        auto v23 = cdt::Vector2f(v2 - v3);
-        auto v1p = cdt::Vector2f(v1 - vp);
-        auto v2p = cdt::Vector2f(v2 - vp);
+        auto v13 = utils::Vector2f(v1 - v3);
+        auto v23 = utils::Vector2f(v2 - v3);
+        auto v1p = utils::Vector2f(v1 - vp);
+        auto v2p = utils::Vector2f(v2 - vp);
 
         const auto cos_a = dot(v13, v23);
         const auto cos_b = dot(v1p, v2p);
@@ -1621,10 +1625,10 @@ namespace cdt
                query.y >= 0 && query.y <= m_boundary.y;
     }
 
-    template class Triangulation<cdt::Vector2<int>>;
-    template class Triangulation<cdt::Vector2<unsigned int>>;
-    template class Triangulation<cdt::Vector2<unsigned short>>;
-    template class Triangulation<cdt::Vector2<unsigned char>>;
-    template class Triangulation<cdt::Vector2<float>>;
+    template class Triangulation<utils::Vector2<int>>;
+    template class Triangulation<utils::Vector2<unsigned int>>;
+    template class Triangulation<utils::Vector2<unsigned short>>;
+    template class Triangulation<utils::Vector2<unsigned char>>;
+    template class Triangulation<utils::Vector2<float>>;
 
 } // namespace cdt
