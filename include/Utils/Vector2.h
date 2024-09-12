@@ -221,6 +221,8 @@ namespace cdt
         return {std::cos(angle * to_radains), std::sin(angle*to_radains)};
     }
 
+	template <class VecType>	
+	inline cdt::Vector2f asFloat(const VecType &r) { return static_cast<cdt::Vector2f>(r); }
 }
 
-inline cdt::Vector2f asFloat(const cdt::Vector2i &r) { return static_cast<cdt::Vector2f>(r); }
+
