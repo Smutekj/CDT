@@ -39,7 +39,7 @@ namespace cdt
         template <class T1>
         constexpr Vector2(const struct Vector2<T1> &coords) : x(coords.x), y(coords.y) {}
         template <class T1>
-        constexpr Vector2(const T1 &value) : x(value), y(value) {}
+        constexpr Vector2(const T1 &value) : x(value.x), y(value.y) {}
 
         constexpr Vector2 operator+(const Vector2 &v) const
         {
