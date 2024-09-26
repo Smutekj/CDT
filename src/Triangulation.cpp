@@ -104,6 +104,7 @@ namespace cdt
                     return i;
                 }
             }
+            return 0;
         }
         //! walk in the found diraction to triangle containing end_ind;
         while (!isInTriangle(query_point, m_triangles[tri_ind]))
