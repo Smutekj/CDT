@@ -210,7 +210,7 @@ namespace cdt
             return 0;
         }
         //! walk in the found diraction to triangle containing query;
-        while (!isInTriangle(query_point, m_triangles[tri_ind]))
+        while (!isInTriangle(query_point, m_triangles.at(tri_ind)))
         {
             const auto &tri = m_triangles[tri_ind];
 
