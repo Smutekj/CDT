@@ -207,7 +207,7 @@ namespace cdt
                     return i;
                 }
             }
-            return 0;
+            return -1;
         }
         //! walk in the found diraction to triangle containing query;
         while (!isInTriangle(query_point, m_triangles.at(tri_ind)))
