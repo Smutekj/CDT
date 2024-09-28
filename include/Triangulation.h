@@ -249,10 +249,10 @@ namespace cdt
         d2 = orient(r, static_cast<VecT>(tri.verts[1]), static_cast<VecT>(tri.verts[2]));
         d3 = orient(r, static_cast<VecT>(tri.verts[2]), static_cast<VecT>(tri.verts[0]));
 
-        has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
-        has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+        has_neg = (d1 <= 0) && (d2 <= 0) && (d3 <= 0);
+        // has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
 
-        return !(has_neg && has_pos);
+        return has_neg;
     }
 
 } // namespace cdt
