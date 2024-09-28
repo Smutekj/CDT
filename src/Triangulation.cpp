@@ -229,6 +229,10 @@ namespace cdt
             {
                 tri_ind = tri.neighbours[index_in_tri];
             }
+            if(tri_ind == -1) //! in case of some floating errors near boundaries
+            {
+                return -1;
+            }
         }
 
         m_last_found = tri_ind; //! cache the result
