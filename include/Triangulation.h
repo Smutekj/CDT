@@ -117,6 +117,13 @@ namespace cdt
 
         bool allAreDelaunay() const;
 
+    template <class  VectorType>
+    bool Triangulation<Vertex>::isWithinBoundary(const VectorType &query)
+    {
+        return query.x >= 0 && query.x <= m_boundary.x &&
+               query.y >= 0 && query.y <= m_boundary.y;
+    }
+
     private:
         bool areCollinear(const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
         bool liesBetween(const Vertex &v, const Vertex &v_left, const Vertex &v_right) const;
@@ -159,8 +166,7 @@ namespace cdt
 
         void updateIndsOfNeighbour(TriInd to_update, TriInd old_neighbour, TriInd new_neighbour);
 
-        template <class VectorType>
-        bool isWithinBoundary(const VectorType &query);
+
 
         friend class TriangulationTest; //! controversial but IDGAF
 

@@ -1623,13 +1623,7 @@ namespace cdt
         assert(allTrianglesValid());
     }
 
-    template <class Vertex>
-    template <class  VectorType>
-    bool Triangulation<Vertex>::isWithinBoundary(const VectorType &query)
-    {
-        return query.x >= 0 && query.x <= m_boundary.x &&
-               query.y >= 0 && query.y <= m_boundary.y;
-    }
+
 
     template class Triangulation<cdt::Vector2<int>>;
     template class Triangulation<cdt::Vector2<unsigned int>>;
