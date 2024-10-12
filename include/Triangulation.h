@@ -118,7 +118,7 @@ namespace cdt
         bool allAreDelaunay() const;
 
     template <class  VectorType>
-    bool Triangulation<Vertex>::isWithinBoundary(const VectorType &query)
+    bool isWithinBoundary(const VectorType &query)
     {
         return query.x >= 0 && query.x <= m_boundary.x &&
                query.y >= 0 && query.y <= m_boundary.y;
