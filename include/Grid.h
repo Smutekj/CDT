@@ -5,12 +5,14 @@
 namespace cdt
 {
 
+  //! \class Grid
+  //! \brief a utility class representing a regular recatngular grid
   class Grid
   {
 
   public:
-    cdt::Vector2i m_cell_count;
-    cdt::Vector2f m_cell_size;
+    cdt::Vector2i m_cell_count;   //!< number of cells in x and y directions
+    cdt::Vector2f m_cell_size;    //!< size of each cell
 
   public:
     Grid(cdt::Vector2i n_cells, cdt::Vector2f box_size);

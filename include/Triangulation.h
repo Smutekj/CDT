@@ -15,13 +15,15 @@ namespace sf
     class RenderWindow;
 }
 
+//! \namespace cdt
 namespace cdt
 {
 
     using TriInd = unsigned int;
     using VertInd = unsigned int;
 
-    //! \struct holding indices of two vertices in the triangulation
+    //! \struct EdgeVInd
+    //! \brief holding indices of two vertices in the triangulation
     struct EdgeVInd
     {
         VertInd from = -1;
@@ -37,6 +39,9 @@ namespace cdt
         }
     };
 
+    //! \class EdgeI
+    //! \brief represents a segment using two vertices 
+    //! \tparam Vertex type of the vertex data held in the triangles
     template <class Vertex>
     struct EdgeI
     {
@@ -52,7 +57,9 @@ namespace cdt
         bool operator==(const EdgeI &e) const { return e.from == from and e.t == t; }
     };
 
-    //! \struct holds data relating to triangle. Ordering is counterclowise (see image)
+    //! \struct Triangle
+    //! \tparam Vertex type of the vertex data held in the triangles
+    //! \brief holds data relating to triangle. Ordering of vertices is counterclowise!
     template <class Vertex>
     struct Triangle
     {
@@ -69,7 +76,8 @@ namespace cdt
         }
     };
 
-    //! \struct function object used to convert an edge into a hash
+    //! \struct EdgeHash
+    //! \brief function object used to convert an edge into a hash
     struct EdgeHash
     {
         template <class Vertex>
@@ -80,12 +88,20 @@ namespace cdt
         }
     };
 
+    //! \struct VertexInsertionData
+    //! \brief holds data about how a vertex was inserted
+    //! could either be inserted on an eixsting vertex, 
+    //! open space, or on an existing constrained edge
     struct VertexInsertionData
     {
         VertInd overlapping_vertex = -1;
         EdgeVInd overlapping_edge;
     };
 
+    //! \class Triangulation
+    //! \brief Holds all triangles, vertices and other data needed to construct and maintin a
+    //! \brief constrained delaunay triangulation
+    //! \tparam Vertex type of the vertex data held in the triangles
     template <class Vertex = cdt::Vector2<unsigned int>>
     class Triangulation
     {
@@ -117,6 +133,9 @@ namespace cdt
 
         bool allAreDelaunay() const;
 
+
+    //! \param query    the queried point 
+    //! \returns true if the \p query point lies within the rectangular boundary
     template <class  VectorType>
     bool isWithinBoundary(const VectorType &query)
     {
