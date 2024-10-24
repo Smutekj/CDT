@@ -10,10 +10,6 @@
 
 #include "Grid.h"
 
-namespace sf
-{
-    class RenderWindow;
-}
 
 //! \namespace cdt
 namespace cdt
