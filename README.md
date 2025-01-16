@@ -1,4 +1,4 @@
-# ConstrainedDelaunay
+# Constrained Delaunay Triangulation
 C++ Implementation of the Constrained Delaunay Triangulation (CDT) made specifically for games, that use a rectangular shaped map. The triangulation vertices lie on positive integer indexed **Grid**, which is ideal for most grid based games. This means we don't have to rely on floating point arithmetic in order to check if a vertex exists in the CDT. The user will be allowed to pick a coordinate type as either 8bit, 16bit, or 32 bit unsigned integer depending. The advantage of using smaller types is that triangles themselves are smaller and thus more of them fit into a single cache line.
 
 
