@@ -10,7 +10,6 @@
 
 #include "Grid.h"
 
-
 //! \namespace cdt
 namespace cdt
 {
@@ -36,7 +35,7 @@ namespace cdt
     };
 
     //! \class EdgeI
-    //! \brief represents a segment using two vertices 
+    //! \brief represents a segment using two vertices
     //! \tparam Vertex type of the vertex data held in the triangles
     template <class Vertex>
     struct EdgeI
@@ -86,7 +85,7 @@ namespace cdt
 
     //! \struct VertexInsertionData
     //! \brief holds data about how a vertex was inserted
-    //! could either be inserted on an eixsting vertex, 
+    //! could either be inserted on an eixsting vertex,
     //! open space, or on an existing constrained edge
     struct VertexInsertionData
     {
@@ -129,15 +128,14 @@ namespace cdt
 
         bool allAreDelaunay() const;
 
-
-    //! \param query    the queried point 
-    //! \returns true if the \p query point lies within the rectangular boundary
-    template <class  VectorType>
-    bool isWithinBoundary(const VectorType &query)
-    {
-        return query.x >= 0 && query.x <= m_boundary.x &&
-               query.y >= 0 && query.y <= m_boundary.y;
-    }
+        //! \param query    the queried point
+        //! \returns true if the \p query point lies within the rectangular boundary
+        template <class VectorType>
+        bool isWithinBoundary(const VectorType &query)
+        {
+            return query.x >= 0 && query.x <= m_boundary.x &&
+                   query.y >= 0 && query.y <= m_boundary.y;
+        }
 
     private:
         bool areCollinear(const Vertex &v1, const Vertex &v2, const Vertex &v3) const;
@@ -157,7 +155,6 @@ namespace cdt
         void insertVertexOnEdge(const Vertex &v, TriInd tri_ind_a, TriInd tri_ind_b, const EdgeI<Vertex> &edge);
 
         bool isConvex(const Vertex v1, const Vertex v2, const Vertex v3, const Vertex v4) const;
-
 
         void swapConnectingEdgeClockwise(const TriInd &tri_ind_a, const TriInd &tri_ind_b);
         void swapConnectingEdgeCounterClockwise(const TriInd &tri_ind_a, const TriInd &tri_ind_b);
@@ -180,8 +177,6 @@ namespace cdt
         TriInd triangleOppositeOfEdge(const Triangle<Vertex> &tri, const EdgeI<Vertex> &edge) const;
 
         void updateIndsOfNeighbour(TriInd to_update, TriInd old_neighbour, TriInd new_neighbour);
-
-
 
         friend class TriangulationTest; //! controversial but IDGAF
 
@@ -263,17 +258,12 @@ namespace cdt
     template <typename VecT, class Vertex>
     inline bool isInTriangle(const VecT &r, const Triangle<Vertex> &tri)
     {
-        float d1, d2, d3;
-        bool has_neg, has_pos;
 
-        d1 = orient(r, static_cast<VecT>(tri.verts[0]), static_cast<VecT>(tri.verts[1]));
-        d2 = orient(r, static_cast<VecT>(tri.verts[1]), static_cast<VecT>(tri.verts[2]));
-        d3 = orient(r, static_cast<VecT>(tri.verts[2]), static_cast<VecT>(tri.verts[0]));
+        float d1 = orient(r, static_cast<VecT>(tri.verts[0]), static_cast<VecT>(tri.verts[1]));
+        float d2 = orient(r, static_cast<VecT>(tri.verts[1]), static_cast<VecT>(tri.verts[2]));
+        float d3 = orient(r, static_cast<VecT>(tri.verts[2]), static_cast<VecT>(tri.verts[0]));
 
-        has_neg = (d1 <= 0) && (d2 <= 0) && (d3 <= 0);
-        // has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
-
-        return has_neg;
+        return (d1 <= 0) && (d2 <= 0) && (d3 <= 0);
     }
 
 } // namespace cdt
