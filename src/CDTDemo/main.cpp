@@ -48,9 +48,6 @@ int main(int argc, char **argv)
     bool draw_grid = false;
     sf::Vector2i box_size = {15, 15};
     Triangulation cdt({box_size.x, box_size.y});
-    auto tri = cdt.m_triangles[0];
-    auto wtf = sizeof(tri);
-
 
     sf::RenderWindow window({800, 600}, "Demo");
     window.setFramerateLimit(60.f);
