@@ -201,7 +201,7 @@ void drawLine(sf::RenderWindow &window, sf::Vector2f p1, sf::Vector2f p2, sf::Co
     line.setPosition(p1);
     sf::Vector2f dr = p2 - p1;
     line.setSize({cdt::norm(dr), width});
-    line.setRotation(std::atan2(dr.y, dr.x) * 180.f / M_PI);
+    line.setRotation(std::atan2(dr.y, dr.x) * 180.f / std::numbers::pi_v<float> );
 
     window.draw(line);
 }
