@@ -73,8 +73,9 @@ TEST(TestTriangulation, InsertionOnEdge)
     cdt.insertVertex({5, 7});
     cdt.insertConstraint({4, 5});
     auto insertion_data = cdt.insertVertexAndGetData({5, 6});
-    EXPECT_TRUE(insertion_data.overlapping_vertex == -1);
-    EXPECT_TRUE(insertion_data.overlapping_edge.from == 5 && insertion_data.overlapping_edge.to == 4);
+    EXPECT_TRUE(insertion_data.overlapping_vertex == -1u) << "overlapping vertex should be -1 because it was not inserted on an existing one";
+    EXPECT_TRUE((insertion_data.overlapping_edge.from == 5  && insertion_data.overlapping_edge.to == 4 ) ||
+                (insertion_data.overlapping_edge.from == 4  && insertion_data.overlapping_edge.to == 5)) << "not inserted on edge";
 }
 
 
