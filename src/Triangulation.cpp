@@ -1,4 +1,5 @@
-#include "../include/Triangulation.h"
+#include "Triangulation.h"
+#include "Utils/Vector2.h"
 
 #include <cassert>
 #include <algorithm>
@@ -7,7 +8,6 @@
 #include <string>
 #include <stack>
 
-#include "../include/Utils/Vector2.h"
 
 namespace cdt
 {

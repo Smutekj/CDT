@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../../include/Vector2.h"
+#include "Utils/Vector2.h"
 
 TEST(TestBasicGeometry, Dot)
 {
