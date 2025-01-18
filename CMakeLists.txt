@@ -11,23 +11,27 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS YES)
 
+# Link this 'library' to use the warnings specified in CompilerWarnings.cmake
 add_library(project_warnings INTERFACE)
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(project_warnings)
 
-# Link this 'library' to use the warnings specified in CompilerWarnings.cmake
-include(cmake/CompilerFlags.cmake)
+
 include(cmake/ExternalTools.cmake)
 
-add_library(${PROJECT_NAME} STATIC)
+add_library(CDT STATIC)
 
-target_sources(${PROJECT_NAME}  
-        PRIVATE
-        src/Triangulation.cpp
-        src/Grid.cpp
-        )
+target_sources(CDT
+PRIVATE
+src/Triangulation.cpp
+src/Grid.cpp
+)
+target_link_libraries(CDT $<$<CONFIG:Debug>:project_warnings>)
 
-target_include_directories(${PROJECT_NAME}
+include(cmake/CompilerFlags.cmake)
+set_compiler_flags(CDT)
+
+target_include_directories(CDT
     PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
