@@ -6,8 +6,6 @@ The CDT could be used how the CDT can be used to implement:
 1. pathfinding
 2. shadow casting and vision field construction
 3. surface extraction from points in 3D (e.g. for terrain generation)
-4. ???
-5. profit 
 
 ## Build
 
