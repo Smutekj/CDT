@@ -61,7 +61,7 @@ namespace cdt
         Vertex verts[3];                        //! vertex coordinates
         TriInd neighbours[3] = {-1u, -1u, -1u}; //! indices of neighbouring triangles
         std::array<bool, 3> is_constrained = {false, false, false};
-        ; //! whether corresponding edge is constrained (is this needed here?)
+        //! whether corresponding edge is constrained (is this needed here?)
 
         explicit Triangle() = default;
 
