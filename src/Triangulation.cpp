@@ -272,6 +272,7 @@ namespace cdt
     template <class Vertex>
     void Triangulation<Vertex>::createBoundaryAndSuperTriangle(cdt::Vector2i box_size)
     {
+        m_boundary = box_size;
 
         m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, box_size);
         m_cell2tri_ind.resize(m_grid->getNCells(), -1);
