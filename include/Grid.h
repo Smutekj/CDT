@@ -1,21 +1,23 @@
 #pragma once
-#include <stdexcept>
+
 #include "Utils/Vector2.h"
+
+#include <stdexcept>
 
 namespace cdt
 {
-
   //! \class Grid
   //! \brief a utility class representing a regular recatngular grid
   class Grid
   {
 
   public:
-    cdt::Vector2i m_cell_count;   //!< number of cells in x and y directions
-    cdt::Vector2f m_cell_size;    //!< size of each cell
+    cdt::Vector2i m_cell_count;  //!< number of cells in x and y directions
+    cdt::Vector2f m_cell_size;   //!< size of each cell
+    cdt::Vector2f m_grid_offset; //!< lower left point of the grid
 
   public:
-    Grid(cdt::Vector2i n_cells, cdt::Vector2f box_size);
+    Grid(cdt::Vector2i n_cells, cdt::Vector2f box_size, cdt::Vector2f offset = {0,0});
 
     [[nodiscard]] size_t coordToCell(float x, float y) const;
     [[nodiscard]] size_t coordToCell(cdt::Vector2f r) const;
@@ -36,4 +38,4 @@ namespace cdt
     size_t getNCells() const;
   };
 
-} // namespace cdt;
+} // namespace cdt

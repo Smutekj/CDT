@@ -308,7 +308,7 @@ namespace cdt
         m_lower_left = lower_left;
         m_boundary = bounding_box_size;
 
-        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, bounding_box_size);
+        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, bounding_box_size, lower_left);
         m_cell2tri_ind.resize(m_grid->getNCells(), -1);
 
         Triangle<Vertex> super_triangle;
@@ -327,7 +327,7 @@ namespace cdt
         m_vertices.push_back(super_tri0);
         m_vertices.push_back(super_tri1);
         m_vertices.push_back(super_tri2);
-    
+    }
 
     //! \brief creates supertriangle which contains specified boundary then
     //!        inserts 4 vertices corresponding to the boundary (upper left point is [0,0])
