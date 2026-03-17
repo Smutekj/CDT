@@ -1,4 +1,5 @@
 #include "Triangulation.h"
+
 #include "Utils/Vector2.h"
 
 #include <cassert>
@@ -659,7 +660,7 @@ namespace cdt
     //! \brief inserts all \p verts into the triangulation
     //! TODO: Finish this!
     template <class Vertex>
-    void Triangulation<Vertex>::insertVertices(const std::vector<Vertex> &verts)
+    void Triangulation<Vertex>::insertVertices([[maybe_unused]] const std::vector<Vertex> &verts)
     {
         
         // int vert_ind = m_vertices.size();
@@ -689,7 +690,8 @@ namespace cdt
         // }
     }
 
-    //! \brief inserts \p new_vertex into triangulation, the inserted vertex can either:
+    //! \brief inser// 
+    //x can either:
     //! \brief already exist, or it may lie on an existing edge or it lies in free space
     //! \param new_vertex
     //! \param search_from_last_one should be true if last added vertex is not far from \p new_vertex
@@ -1116,7 +1118,6 @@ namespace cdt
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
         const auto start_tri_ind = findTriangleFromVertex(vi, false);
-        const auto end_tri_ind = findTriangleFromVertex(vj, true);
 
         auto tri_ind = start_tri_ind;
         auto tri = m_triangles[tri_ind];
@@ -1172,7 +1173,6 @@ namespace cdt
             {
                 v_current = tri.verts[next(index_in_tri)];
                 tri_ind = tri.neighbours[next(index_in_tri)];
-                prev_touched = false;
             }
             else if (strictly_less(orient(vi, vj, opp_vertex), 0))
             {
@@ -1197,7 +1197,6 @@ namespace cdt
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
         const auto start_tri_ind = findTriangleFromVertex(vi, false);
-        const auto end_tri_ind = findTriangleFromVertex(vj, true);
 
         auto tri_ind = start_tri_ind;
         auto tri = m_triangles[tri_ind];
@@ -1266,7 +1265,6 @@ namespace cdt
             {
                 v_current = tri.verts[next(index_in_tri)];
                 tri_ind = tri.neighbours[next(index_in_tri)];
-                prev_touched = false;
             }
             else if (strictly_less(orient(vi, vj, opp_vertex), 0))
             {
