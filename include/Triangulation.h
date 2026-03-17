@@ -13,7 +13,6 @@
 //! \namespace cdt
 namespace cdt
 {
-
     using TriInd = unsigned int;
     using VertInd = unsigned int;
 
@@ -108,6 +107,7 @@ namespace cdt
         void createBoundaryAndSuperTriangle(cdt::Vector2i box_size);
         void createBoundary(cdt::Vector2i box_size);
         void createSuperTriangle(cdt::Vector2i box_size);
+        void createSuperTriangle(Vertex lower_left, cdt::Vector2i bounding_box_size);
 
         TriInd findTriangle(cdt::Vector2f query_point, bool start_from_last_found = false);
 
@@ -133,8 +133,8 @@ namespace cdt
         template <class VectorType>
         bool isWithinBoundary(const VectorType &query)
         {
-            return query.x >= 0 && query.x <= m_boundary.x &&
-                   query.y >= 0 && query.y <= m_boundary.y;
+            return query.x >= m_lower_left.x && query.x <= m_lower_left.x + m_boundary.x &&
+                   query.y >= m_lower_left.y && query.y <= m_lower_left.y + m_boundary.y;
         }
 
     private:
@@ -189,6 +189,7 @@ namespace cdt
         std::vector<std::array<bool, 3>> m_triedge_constrained;
 
     private:
+        Vertex m_lower_left = {0, 0};
         std::vector<TriInd> m_cell2tri_ind;
         cdt::Vector2i m_boundary;
 

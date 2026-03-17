@@ -244,26 +244,7 @@ namespace cdt
     template <class Vertex>
     void Triangulation<Vertex>::createSuperTriangle(cdt::Vector2i box_size)
     {
-        m_boundary = box_size;
-
-        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, box_size);
-        m_cell2tri_ind.resize(m_grid->getNCells(), -1);
-
-        Triangle<Vertex> super_triangle;
-        m_tri_ind2vert_inds.push_back({0, 1, 2});
-
-        Vertex super_tri0 = {m_boundary.x / 2, m_boundary.y * 3};
-        Vertex super_tri1 = {3 * m_boundary.x, -m_boundary.y / 2};
-        Vertex super_tri2 = {-3 * m_boundary.x, -m_boundary.y / 2};
-
-        super_triangle.verts[0] = super_tri0;
-        super_triangle.verts[1] = super_tri1;
-        super_triangle.verts[2] = super_tri2;
-        m_triangles.push_back(super_triangle);
-
-        m_vertices.push_back(super_tri0);
-        m_vertices.push_back(super_tri1);
-        m_vertices.push_back(super_tri2);
+        createSuperTriangle({0,0}, box_size);
     }
 
     //! \brief creates supertriangle which contains specified boundary then
@@ -318,6 +299,35 @@ namespace cdt
 
         assert(triangulationIsConsistent());
     }
+    //! \brief creates supertriangle which contains specified boundary then
+    //! \param lower_left lower left corner of the boundary region
+    //! \param boundary dimensions of a boundary contained in supertriangle
+    template <class Vertex>
+    void Triangulation<Vertex>::createSuperTriangle(Vertex lower_left, cdt::Vector2i bounding_box_size)
+    {
+        m_lower_left = lower_left;
+        m_boundary = bounding_box_size;
+
+        m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, bounding_box_size);
+        m_cell2tri_ind.resize(m_grid->getNCells(), -1);
+
+        Triangle<Vertex> super_triangle;
+        m_tri_ind2vert_inds.push_back({0, 1, 2});
+
+        Vertex center = lower_left + bounding_box_size/2.f;
+        Vertex super_tri0 = {center.x, lower_left.y - bounding_box_size.y};
+        Vertex super_tri1 = {center.x - bounding_box_size.x*2.f, lower_left.y + 2*bounding_box_size.y};
+        Vertex super_tri2 = {center.x + bounding_box_size.x*2.f, lower_left.y + 2*bounding_box_size.y};
+
+        super_triangle.verts[0] = super_tri0;
+        super_triangle.verts[1] = super_tri1;
+        super_triangle.verts[2] = super_tri2;
+        m_triangles.push_back(super_triangle);
+
+        m_vertices.push_back(super_tri0);
+        m_vertices.push_back(super_tri1);
+        m_vertices.push_back(super_tri2);
+    
 
     //! \brief creates supertriangle which contains specified boundary then
     //!        inserts 4 vertices corresponding to the boundary (upper left point is [0,0])
@@ -325,7 +335,6 @@ namespace cdt
     template <class Vertex>
     void Triangulation<Vertex>::createBoundary(cdt::Vector2i box_size)
     {
-
         m_boundary = box_size;
 
         m_grid = std::make_unique<Grid>(cdt::Vector2i{20, 20}, box_size);
