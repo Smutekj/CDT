@@ -4,6 +4,7 @@
 #include <cassert>
 #include <type_traits>
 #include <limits>
+#include <algorithm>
 #include <numbers>
 
 namespace cdt
