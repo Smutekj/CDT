@@ -3,13 +3,11 @@
 #include <cmath>
 #include <cassert>
 #include <type_traits>
-#include <numeric>
+#include <limits>
 #include <numbers>
 
 namespace cdt
 {
-
-
     bool inline approx_equal(float a, float b, float epsilon = std::numeric_limits<float>::epsilon())
     {
         return std::abs(a - b) <= 1000. * std::max(std::abs(a), std::abs(b)) * epsilon;
@@ -22,8 +20,6 @@ namespace cdt
     {
         return (b - a) > std::max(std::abs(a), std::abs(b)) * 10000. * epsilon;
     }
-
-
 
     template <class T>
     struct Vector2

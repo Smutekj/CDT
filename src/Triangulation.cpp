@@ -378,10 +378,6 @@ namespace cdt
         m_vertices.push_back(v2);
         m_vertices.push_back(v3);
 
-        EdgeVInd e1 = {0, 1};
-        EdgeVInd e2 = {1, 2};
-        EdgeVInd e3 = {2, 3};
-        EdgeVInd e4 = {3, 0};
 
         m_fixed_edges.insert({v0, v1});
         m_fixed_edges.insert({v1, v2});
@@ -623,9 +619,6 @@ namespace cdt
 
         const auto &vert_inds = m_tri_ind2vert_inds[tri_ind];
 
-        EdgeI edge0 = {old_triangle.verts[0], old_triangle.verts[1]};
-        EdgeI edge1 = {old_triangle.verts[1], old_triangle.verts[2]};
-        EdgeI edge2 = {old_triangle.verts[2], old_triangle.verts[0]};
         if (old_triangle.is_constrained[0] && liesBetween(new_vertex, v0, v1))
         {
             return {vert_inds[0], vert_inds[1]};
@@ -648,7 +641,7 @@ namespace cdt
     void Triangulation<Vertex>::insertVertex(const Vertex &new_vertex, bool search_from_last_one)
     {
 
-        auto data = insertVertexAndGetData(new_vertex, search_from_last_one);
+        insertVertexAndGetData(new_vertex, search_from_last_one);
         assert(allTrianglesValid());
     }
 
@@ -664,35 +657,36 @@ namespace cdt
     }
 
     //! \brief inserts all \p verts into the triangulation
-    //!
+    //! TODO: Finish this!
     template <class Vertex>
     void Triangulation<Vertex>::insertVertices(const std::vector<Vertex> &verts)
     {
-        int vert_ind = m_vertices.size();
-        std::vector<std::vector<Vertex>> m_grid2vert_inds(m_grid->getNCells());
+        
+        // int vert_ind = m_vertices.size();
+        // std::vector<std::vector<Vertex>> m_grid2vert_inds(m_grid->getNCells());
 
-        //! sort vertices into bins formed by grid cells
-        for (auto &v : verts)
-        {
-            m_grid2vert_inds.at(m_grid->cellIndex(v)).push_back(v);
-            vert_ind++;
-        }
+        // //! sort vertices into bins formed by grid cells
+        // for (auto &v : verts)
+        // {
+        //     m_grid2vert_inds.at(m_grid->cellIndex(v)).push_back(v);
+        //     vert_ind++;
+        // }
 
-        auto cells_x = m_grid->m_cell_count.x;
-        for (int iy = 0; iy < m_grid->m_cell_count.y; iy++)
-        {
-            bool odd_line = iy % 2 == 1;
-            for (int ix = 0; ix < m_grid->m_cell_count.x; ix++)
-            {
+        // auto cells_x = m_grid->m_cell_count.x;
+        // for (int iy = 0; iy < m_grid->m_cell_count.y; iy++)
+        // {
+        //     bool odd_line = iy % 2 == 1;
+        //     for (int ix = 0; ix < m_grid->m_cell_count.x; ix++)
+        //     {
 
-                int ix_walk = odd_line * (cells_x - 1) + (1 - 2 * odd_line) * ix;
-                auto cell_ind = m_grid->cellIndex(ix_walk, iy);
-                for (auto &v : m_grid2vert_inds.at(cell_ind))
-                {
-                    auto data = insertVertexAndGetData(v, true);
-                }
-            }
-        }
+        //         int ix_walk = odd_line * (cells_x - 1) + (1 - 2 * odd_line) * ix;
+        //         auto cell_ind = m_grid->cellIndex(ix_walk, iy);
+        //         for (auto &v : m_grid2vert_inds.at(cell_ind))
+        //         {
+        //             auto data = insertVertexAndGetData(v, true);
+        //         }
+        //     }
+        // }
     }
 
     //! \brief inserts \p new_vertex into triangulation, the inserted vertex can either:
@@ -852,10 +846,7 @@ namespace cdt
                 if (neighbour_tri_ind != -1)
                 {
                     const auto &neighbour_tri = m_triangles[neighbour_tri_ind];
-                    const auto ind_in_neirhbour_tri = 0;
                     const auto found_at = indInTriOf(neighbour_tri, tri_ind);
-                    // std::find(neighbour_tri.neighbours.begin(), neighbour_tri.neighbours.end(), tri_ind) -
-                    // neighbour_tri.neighbours.begin();
                     if (found_at < 0 or found_at > 2)
                     {
                         return false;
@@ -928,7 +919,6 @@ namespace cdt
             auto next_tri_ind = triangleOppositeOfEdge(tri, e_next);
             auto &next_tri = m_triangles[next_tri_ind];
 
-            auto v_current_ind = m_tri_ind2vert_inds[tri_ind][oppositeOfEdge(tri, e_next)];
             auto v_current = tri.verts[oppositeOfEdge(tri, e_next)];
             auto v_opposite_ind_in_tri = oppositeIndex(tri_ind, next_tri);
             auto v_opposite_current = next_tri.verts[v_opposite_ind_in_tri];
@@ -954,7 +944,6 @@ namespace cdt
                 {
                     intersected_edges.push_back(e_next);
                     intersected_tri_inds.push_back(tri_ind);
-                    auto ind_in_tri = oppositeOfEdge(m_triangles.at(tri_ind), e_next);
                 }
                 else
                 {
@@ -1041,16 +1030,12 @@ namespace cdt
         //! change vertices -> prev(a) becomes b and prev(b) becomes a;
         const auto &v_b = tri_b.verts[v_b_ind_in_tri];
         const auto &v_a = tri_a.verts[v_a_ind_in_tri];
-        const auto &v_left = tri_a.verts[prev(v_a_ind_in_tri)];
-        const auto &v_right = tri_a.verts[next(v_a_ind_in_tri)];
         tri_a.verts[next(v_a_ind_in_tri)] = v_b;
         tri_b.verts[next(v_b_ind_in_tri)] = v_a;
 
         //! change neighbours
         const auto na = tri_a.neighbours[(v_a_ind_in_tri)];
         const auto nb = tri_b.neighbours[(v_b_ind_in_tri)];
-        const auto na_prev = tri_a.neighbours[prev(v_a_ind_in_tri)];
-        const auto nb_prev = tri_b.neighbours[prev(v_b_ind_in_tri)];
         tri_a.neighbours[next(v_a_ind_in_tri)] = nb;
         tri_a.neighbours[(v_a_ind_in_tri)] = tri_ind_b;
         tri_b.neighbours[next(v_b_ind_in_tri)] = na;
@@ -1096,8 +1081,6 @@ namespace cdt
         //! change vertices -> prev(a) becomes b and prev(b) becomes a;
         const auto &v_b = tri_b.verts[v_b_ind_in_tri];
         const auto &v_a = tri_a.verts[v_a_ind_in_tri];
-        const auto &v_left = tri_a.verts[prev(v_a_ind_in_tri)];
-        const auto &v_right = tri_a.verts[next(v_a_ind_in_tri)];
 
         tri_a.verts[prev(v_a_ind_in_tri)] = v_b;
         tri_b.verts[prev(v_b_ind_in_tri)] = v_a;
@@ -1133,9 +1116,7 @@ namespace cdt
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
         const auto start_tri_ind = findTriangleFromVertex(vi, false);
-        const auto start_tri = m_triangles[start_tri_ind];
         const auto end_tri_ind = findTriangleFromVertex(vj, true);
-        const auto end_tri = m_triangles[end_tri_ind];
 
         auto tri_ind = start_tri_ind;
         auto tri = m_triangles[tri_ind];
@@ -1145,8 +1126,6 @@ namespace cdt
         auto v_right = tri.verts[next(index_in_tri)];
 
         std::vector<EdgeI<Vertex>> overlapps;
-
-        bool prev_touched = false;
 
         // check if the vj is already connected to vi
         do
@@ -1172,11 +1151,9 @@ namespace cdt
         } while (tri_ind != start_tri_ind);
 
         auto v_current = v_right;
-        auto prev_tri_ind = tri_ind;
         tri_ind = tri.neighbours[next(index_in_tri)];
 
         auto opp_vertex = v_right;
-        auto prev_opp_vertex = opp_vertex;
 
         //! walks towards vj and looks for overlaps
         while (v_current != vj)
@@ -1220,9 +1197,7 @@ namespace cdt
 
         //! walk from tri_ind_start to  tri_ind_end while looking for collinear constrained edges
         const auto start_tri_ind = findTriangleFromVertex(vi, false);
-        const auto start_tri = m_triangles[start_tri_ind];
         const auto end_tri_ind = findTriangleFromVertex(vj, true);
-        const auto end_tri = m_triangles[end_tri_ind];
 
         auto tri_ind = start_tri_ind;
         auto tri = m_triangles[tri_ind];
@@ -1232,8 +1207,6 @@ namespace cdt
         auto v_right = tri.verts[next(index_in_tri)];
 
         std::vector<EdgeVInd> overlapps;
-
-        bool prev_touched = false;
 
         // check if the vj is already connected to vi
         do
@@ -1261,11 +1234,9 @@ namespace cdt
         } while (tri_ind != start_tri_ind);
 
         auto v_current = v_right;
-        auto prev_tri_ind = tri_ind;
         tri_ind = tri.neighbours[next(index_in_tri)];
 
         auto opp_vertex = v_right;
-        auto prev_opp_vertex = opp_vertex;
 
         //! walk towards vj and gather overlapping edges
         while (v_current != vj)
@@ -1329,9 +1300,7 @@ namespace cdt
         const auto vj = m_vertices[vj_ind];
 
         const auto start_tri_ind = findTriangleFromVertex(vi, false);
-        const auto start_tri = m_triangles[start_tri_ind];
         const auto end_tri_ind = findTriangleFromVertex(vj, true);
-        const auto end_tri = m_triangles[end_tri_ind];
 
         EdgeI<Vertex> e_inserted(vi, vj);
 
